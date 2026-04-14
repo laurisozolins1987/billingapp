@@ -11,5 +11,6 @@
         <item name="colorOnSurface">#E0E0E0</item>
         <item name="android:statusBarColor">#121212</item>
         <item name="android:navigationBarColor">#121212</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
 </resources>

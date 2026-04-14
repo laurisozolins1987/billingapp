@@ -11,6 +11,7 @@
         <item name="colorOnSurface">@color/on_surface</item>
         <item name="android:statusBarColor">@color/primary_dark</item>
         <item name="android:navigationBarColor">@color/surface</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
 
     <style name="Theme.Billingapp.BottomSheet" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">

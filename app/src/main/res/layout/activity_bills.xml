@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:background="?android:attr/colorBackground"
+    android:background="@color/status_bar_bg"
     android:orientation="vertical">
 
     <!-- Toolbar -->
@@ -210,6 +210,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:background="?android:attr/colorBackground"
         android:clipToPadding="false"
         android:paddingBottom="80dp" />
 
@@ -218,6 +219,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:background="?android:attr/colorBackground"
         android:drawableTop="@drawable/ic_bill"
         android:drawablePadding="16dp"
         android:drawableTint="@color/text_hint"

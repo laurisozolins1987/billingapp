@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Status bar background for dark mode -->
+    <color name="status_bar_bg">#121212</color>
+</resources>

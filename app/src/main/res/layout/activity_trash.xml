@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:background="?android:attr/colorBackground"
+    android:background="@color/status_bar_bg"
     android:orientation="vertical"
     tools:context=".TrashActivity">
 
@@ -85,6 +85,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:background="?android:attr/colorBackground"
         android:clipToPadding="false"
         android:paddingBottom="16dp" />
 
@@ -93,6 +94,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:background="?android:attr/colorBackground"
         android:gravity="center"
         android:padding="32dp"
         android:text="@string/trash_empty"

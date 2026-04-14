@@ -46,4 +46,7 @@
 
     <!-- Surface card -->
     <color name="surface_card">#F5F5F5</color>
+
+    <!-- Status bar background (shown behind transparent status bar on API 35+) -->
+    <color name="status_bar_bg">#003300</color>
 </resources>

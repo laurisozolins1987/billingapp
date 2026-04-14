@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:background="?android:attr/colorBackground"
+    android:background="@color/status_bar_bg"
     android:orientation="vertical"
     tools:context=".CalendarActivity">
 
@@ -23,6 +23,7 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="?android:attr/colorBackground"
         android:fillViewport="true">
 
         <LinearLayout
@@ -279,8 +280,16 @@
                 android:layout_marginTop="8dp"
                 android:nestedScrollingEnabled="false"
                 android:overScrollMode="never"
-                android:paddingBottom="16dp"
                 tools:listitem="@layout/item_transaction" />
+
+            <!-- Day bills list -->
+            <LinearLayout
+                android:id="@+id/ll_day_bills"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="16dp"
+                android:visibility="gone" />
 
             <!-- Empty state for selected day -->
             <TextView

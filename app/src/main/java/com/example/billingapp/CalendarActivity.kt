@@ -2,13 +2,16 @@ package com.example.billingapp
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.billingapp.databinding.ActivityCalendarBinding
+import com.example.billingapp.databinding.ItemBillBinding
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -249,13 +252,13 @@ class CalendarActivity : AppCompatActivity() {
         if (totalItems == 0) {
             binding.cardDaySummary.visibility = View.GONE
             binding.rvDayTransactions.visibility = View.GONE
+            binding.llDayBills.visibility = View.GONE
             binding.tvDayEmpty.visibility = View.VISIBLE
         } else {
             binding.tvDayEmpty.visibility = View.GONE
             binding.cardDaySummary.visibility = View.VISIBLE
-            binding.rvDayTransactions.visibility = View.VISIBLE
 
-            // Calculate day summary (transactions only)
+            // Calculate day summary
             val currencySymbol = SettingsActivity.getCurrencySymbol(this)
             val income = dayTransactions.filter { it.isIncome }.sumOf { it.amount }
             val expense = dayTransactions.filter { !it.isIncome }.sumOf { it.amount }
@@ -264,7 +267,85 @@ class CalendarActivity : AppCompatActivity() {
             binding.tvDayIncome.text = String.format("+%,.2f %s", income, currencySymbol)
             binding.tvDayExpense.text = String.format("-%,.2f %s", expense + billsTotal, currencySymbol)
 
-            transactionAdapter.submitList(dayTransactions)
+            // Show transactions
+            if (dayTransactions.isNotEmpty()) {
+                binding.rvDayTransactions.visibility = View.VISIBLE
+                transactionAdapter.submitList(dayTransactions)
+            } else {
+                binding.rvDayTransactions.visibility = View.GONE
+            }
+
+            // Show bills
+            showDayBills(dayBills, currencySymbol)
+        }
+    }
+
+    private fun showDayBills(dayBills: List<Bill>, currencySymbol: String) {
+        binding.llDayBills.removeAllViews()
+        if (dayBills.isEmpty()) {
+            binding.llDayBills.visibility = View.GONE
+            return
+        }
+        binding.llDayBills.visibility = View.VISIBLE
+
+        val dateFormat = SimpleDateFormat("d. MMM yyyy, HH:mm", Locale.getDefault())
+        val now = System.currentTimeMillis()
+
+        for (bill in dayBills) {
+            val billBinding = ItemBillBinding.inflate(LayoutInflater.from(this), binding.llDayBills, false)
+
+            billBinding.tvBillTitle.text = bill.title
+            billBinding.tvBillAmount.text = String.format("%,.2f %s", bill.amount, currencySymbol)
+            billBinding.tvBillDueDate.text = getString(R.string.bill_due_prefix, dateFormat.format(Date(bill.dueDate)))
+
+            if (bill.category.isNotEmpty()) {
+                billBinding.tvBillCategory.text = bill.category
+                billBinding.tvBillCategory.visibility = View.VISIBLE
+            } else {
+                billBinding.tvBillCategory.visibility = View.GONE
+            }
+
+            if (bill.invoiceNumber.isNotEmpty()) {
+                billBinding.tvBillInvoiceNumber.text = "Nr. ${bill.invoiceNumber}"
+                billBinding.tvBillInvoiceNumber.visibility = View.VISIBLE
+            } else {
+                billBinding.tvBillInvoiceNumber.visibility = View.GONE
+            }
+
+            billBinding.ivRecurring.visibility = if (bill.isRecurring) View.VISIBLE else View.GONE
+            billBinding.ivReminder.visibility = if (bill.reminderEnabled) View.VISIBLE else View.GONE
+
+            when {
+                bill.isPaid -> {
+                    billBinding.tvBillStatus.text = getString(R.string.bill_paid)
+                    billBinding.tvBillStatus.setTextColor(ContextCompat.getColor(this, R.color.income_green))
+                    billBinding.tvBillAmount.setTextColor(ContextCompat.getColor(this, R.color.income_green))
+                    billBinding.ivBillStatus.setImageResource(R.drawable.ic_paid)
+                    billBinding.ivBillStatus.setColorFilter(ContextCompat.getColor(this, R.color.income_green))
+                }
+                bill.dueDate < now -> {
+                    billBinding.tvBillStatus.text = getString(R.string.bill_overdue)
+                    billBinding.tvBillStatus.setTextColor(ContextCompat.getColor(this, R.color.bill_overdue))
+                    billBinding.tvBillAmount.setTextColor(ContextCompat.getColor(this, R.color.bill_overdue))
+                    billBinding.ivBillStatus.setImageResource(R.drawable.ic_overdue)
+                    billBinding.ivBillStatus.setColorFilter(ContextCompat.getColor(this, R.color.bill_overdue))
+                }
+                else -> {
+                    billBinding.tvBillStatus.text = getString(R.string.bill_unpaid)
+                    billBinding.tvBillStatus.setTextColor(ContextCompat.getColor(this, R.color.bill_blue))
+                    billBinding.tvBillAmount.setTextColor(ContextCompat.getColor(this, R.color.bill_blue))
+                    billBinding.ivBillStatus.setImageResource(R.drawable.ic_bill)
+                    billBinding.ivBillStatus.setColorFilter(ContextCompat.getColor(this, R.color.bill_blue))
+                }
+            }
+
+            billBinding.root.setOnClickListener {
+                val intent = Intent(this, BillDetailActivity::class.java)
+                intent.putExtra(BillDetailActivity.EXTRA_BILL_ID, bill.id)
+                startActivity(intent)
+            }
+
+            binding.llDayBills.addView(billBinding.root)
         }
     }
 
@@ -273,6 +354,7 @@ class CalendarActivity : AppCompatActivity() {
         binding.tvDayTransactionCount.text = ""
         binding.cardDaySummary.visibility = View.GONE
         binding.rvDayTransactions.visibility = View.GONE
+        binding.llDayBills.visibility = View.GONE
         binding.tvDayEmpty.visibility = View.VISIBLE
     }
 }
