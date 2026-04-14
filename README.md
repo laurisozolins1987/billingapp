@@ -1,54 +1,61 @@
 # Mana Nauda 💰
 
-Android personālā finanšu uzskaites lietotne, kas ļauj sekot līdzi ieņēmumiem un izdevumiem.
+Personal finance tracker Android app for managing income and expenses.
 
-## Funkcionalitāte
+**Personālā finanšu uzskaites lietotne Android platformai.**
 
-- **Darījumu pievienošana** — ieņēmumi un izdevumi ar summu, piezīmi un datumu
-- **Bilances aprēķins** — reāllaika kopsummas attēlošana
-- **Datumu filtrēšana** — darījumu apskatīšana pa laika periodiem
-- **Dzēšana ar vilkšanu** — velciet darījumu pa kreisi/labi lai dzēstu (ar atsaukšanas iespēju)
-- **Tumšais režīms** — automātisks tumšā režīma atbalsts
-- **Latviešu valodā** — pilns saskarnes tulkojums
+---
 
-## Tehnoloģijas
+## Features / Funkcionalitāte
 
-| Tehnoloģija | Lietojums |
+- **Add transactions** — income & expenses with amount, note, and date
+- **Balance calculation** — real-time total balance display
+- **Date range filter** — view transactions for a specific period
+- **Swipe to delete** — swipe left/right to remove a transaction (with undo)
+- **Dark mode** — automatic dark theme support
+- **Latvian UI** — full Latvian language interface
+
+## Tech Stack
+
+| Technology | Purpose |
 |---|---|
-| **Kotlin** | Programmēšanas valoda |
-| **MVVM** | Arhitektūras modelis |
-| **Room** | Lokālā SQLite datubāze |
-| **LiveData** | Reaktīvi dati UI atjaunošanai |
-| **Material Design** | UI komponentes un tēmas |
-| **View Binding** | Drošs skatu piesaistīšanas veids |
-| **Coroutines** | Asinhronie datubāzes izsaukumi |
+| **Kotlin** | Programming language |
+| **MVVM** | Architecture pattern |
+| **Room** | Local SQLite database |
+| **LiveData** | Reactive UI updates |
+| **Material Design** | UI components & theming |
+| **View Binding** | Type-safe view access |
+| **Coroutines** | Async database operations |
 
-## Projekta struktūra
+## Project Structure
 
 ```
 app/src/main/java/com/example/billingapp/
-├── Transaction.kt           # Datu modelis (Room Entity)
-├── TransactionDao.kt        # Datubāzes piekļuves objekts
-├── AppDatabase.kt           # Room datubāzes konfigurācija
-├── TransactionRepository.kt # Datu slānis
+├── Transaction.kt           # Data model (Room Entity)
+├── TransactionDao.kt        # Database Access Object
+├── AppDatabase.kt           # Room database configuration
+├── TransactionRepository.kt # Data layer
 ├── TransactionViewModel.kt  # MVVM ViewModel
-├── TransactionAdapter.kt    # RecyclerView adapteris
-└── MainActivity.kt          # Galvenā aktivitāte
+├── TransactionAdapter.kt    # RecyclerView adapter
+└── MainActivity.kt          # Main activity
 ```
 
-## Prasības
+## Requirements
 
-- Android Studio Ladybug vai jaunāks
+- Android Studio Ladybug or newer
 - Min SDK: 24 (Android 7.0)
 - Target SDK: 35
 
-## Palaišana
+## Getting Started
 
-1. Klonē repozitoriju
-2. Atver projektu Android Studio
-3. Sinhronizē Gradle
-4. Palaid uz emulatora vai ierīces
+1. Clone the repository
+   ```bash
+   git clone https://github.com/laurisozolins1987/billingapp.git
+   ```
+2. Open the project in Android Studio
+3. Sync Gradle
+4. Run on an emulator or device
 
-## Licence
+## License
 
-Šis projekts ir privāts.
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
