@@ -19,5 +19,7 @@ data class Bill(
     val reminderEnabled: Boolean = false,
     val reminderDaysBefore: Int = 1,
     val createdAt: Long = System.currentTimeMillis(),
-    val imagePath: String = ""
+    val imagePath: String = "",
+    val invoiceNumber: String = "",
+    val receivedDate: Long = 0
 )

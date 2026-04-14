@@ -46,6 +46,13 @@ class BillAdapter(
                     tvBillCategory.visibility = View.GONE
                 }
 
+                if (bill.invoiceNumber.isNotEmpty()) {
+                    tvBillInvoiceNumber.text = "Nr. ${bill.invoiceNumber}"
+                    tvBillInvoiceNumber.visibility = View.VISIBLE
+                } else {
+                    tvBillInvoiceNumber.visibility = View.GONE
+                }
+
                 // Recurring indicator
                 ivRecurring.visibility = if (bill.isRecurring) View.VISIBLE else View.GONE
                 // Reminder indicator

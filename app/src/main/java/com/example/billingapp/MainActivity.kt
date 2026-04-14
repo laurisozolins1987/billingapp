@@ -178,6 +178,10 @@ class MainActivity : AppCompatActivity() {
         viewModel.unpaidBills.observe(this) { bills ->
             updateBillsSummary(bills)
         }
+
+        viewModel.filteredBills.observe(this) { bills ->
+            updateBillsSearchResults(bills)
+        }
     }
 
     private fun setupListeners() {
@@ -212,7 +216,12 @@ class MainActivity : AppCompatActivity() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
-                viewModel.search(s?.toString()?.trim() ?: "")
+                val query = s?.toString()?.trim() ?: ""
+                viewModel.search(query)
+                if (query.isEmpty()) {
+                    isSearchActive = false
+                    viewModel.unpaidBills.value?.let { updateBillsSummary(it) }
+                }
             }
         })
     }
@@ -300,6 +309,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateBillsSummary(unpaidBills: List<Bill>) {
+        if (isSearchActive) return // Search results take priority
+
         if (unpaidBills.isEmpty()) {
             binding.cardBillsSummary.visibility = View.GONE
             return
@@ -373,6 +384,71 @@ class MainActivity : AppCompatActivity() {
                 row.setPadding(0, 4, 0, 4)
                 binding.layoutUpcomingBills.addView(row)
             }
+        }
+    }
+
+    private var isSearchActive = false
+
+    private fun updateBillsSearchResults(bills: List<Bill>) {
+        // Only show search results when actually searching
+        val query = binding.etSearch.text?.toString()?.trim() ?: ""
+        isSearchActive = query.isNotEmpty()
+
+        if (!isSearchActive) return // Don't override the summary view
+
+        if (bills.isEmpty()) {
+            binding.cardBillsSummary.visibility = View.GONE
+            return
+        }
+
+        binding.cardBillsSummary.visibility = View.VISIBLE
+        val currencySymbol = SettingsActivity.getCurrencySymbol(this)
+        val todayStart = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+
+        val total = bills.sumOf { it.amount }
+        binding.tvBillsTotal.text = String.format("%,.2f %s", total, currencySymbol)
+        binding.rowBillsOverdue.visibility = View.GONE
+        binding.rowBillsUpcoming.visibility = View.GONE
+
+        binding.layoutUpcomingBills.removeAllViews()
+        binding.tvBillsEmpty.visibility = View.GONE
+
+        val dateFormat = SimpleDateFormat("dd.MM", Locale.getDefault())
+        for (bill in bills.take(5)) {
+            val row = layoutInflater.inflate(android.R.layout.simple_list_item_2, binding.layoutUpcomingBills, false)
+            val text1 = row.findViewById<android.widget.TextView>(android.R.id.text1)
+            val text2 = row.findViewById<android.widget.TextView>(android.R.id.text2)
+
+            text1.text = "${bill.title}  •  ${String.format("%,.2f %s", bill.amount, currencySymbol)}"
+            text1.textSize = 13f
+            text1.setTextColor(getColor(R.color.on_surface))
+
+            val statusLabel = when {
+                bill.isPaid -> getString(R.string.bill_paid)
+                bill.dueDate < todayStart -> getString(R.string.bill_overdue)
+                else -> getString(R.string.bill_unpaid)
+            }
+            val invoiceLabel = if (bill.invoiceNumber.isNotEmpty()) "Nr. ${bill.invoiceNumber}  •  " else ""
+            text2.text = "$invoiceLabel${dateFormat.format(Date(bill.dueDate))}  •  $statusLabel"
+            text2.textSize = 12f
+            text2.setTextColor(when {
+                bill.isPaid -> getColor(R.color.income_green)
+                bill.dueDate < todayStart -> getColor(R.color.bill_overdue)
+                else -> getColor(R.color.bill_blue)
+            })
+
+            row.setPadding(0, 4, 0, 4)
+            row.setOnClickListener {
+                val intent = Intent(this, BillDetailActivity::class.java)
+                intent.putExtra(BillDetailActivity.EXTRA_BILL_ID, bill.id)
+                startActivity(intent)
+            }
+            binding.layoutUpcomingBills.addView(row)
         }
     }
 

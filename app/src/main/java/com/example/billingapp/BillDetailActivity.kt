@@ -118,6 +118,12 @@ class BillDetailActivity : AppCompatActivity() {
         binding.tvDetailCategory.text = bill.category.ifEmpty { getString(R.string.no_category) }
         binding.tvDetailDescription.text = bill.description.ifEmpty { getString(R.string.no_description) }
         binding.tvDetailDueDate.text = dateTimeFormat.format(Date(bill.dueDate))
+        binding.tvDetailInvoiceNumber.text = bill.invoiceNumber.ifEmpty { getString(R.string.bill_no_invoice_number) }
+        binding.tvDetailReceivedDate.text = if (bill.receivedDate > 0) {
+            dateTimeFormat.format(Date(bill.receivedDate))
+        } else {
+            getString(R.string.bill_not_received)
+        }
 
         // Recurring info
         binding.tvDetailRecurring.text = if (bill.isRecurring) {
@@ -301,14 +307,19 @@ class BillDetailActivity : AppCompatActivity() {
         var selectedDate = bill.dueDate
         var selectedHour = calendar.get(Calendar.HOUR_OF_DAY)
         var selectedMinute = calendar.get(Calendar.MINUTE)
+        var selectedReceivedDate = bill.receivedDate
 
         // Pre-fill
         dialogBinding.etTitle.setText(bill.title)
         dialogBinding.etAmount.setText(bill.amount.toString())
         dialogBinding.actCategory.setText(bill.category, false)
         dialogBinding.etDescription.setText(bill.description)
+        dialogBinding.etInvoiceNumber.setText(bill.invoiceNumber)
         dialogBinding.btnPickDate.text = dateFormat.format(Date(selectedDate))
         dialogBinding.btnPickTime.text = String.format("%02d:%02d", selectedHour, selectedMinute)
+        if (selectedReceivedDate > 0) {
+            dialogBinding.btnPickReceivedDate.text = dateFormat.format(Date(selectedReceivedDate))
+        }
         dialogBinding.switchRecurring.isChecked = bill.isRecurring
         dialogBinding.switchReminder.isChecked = bill.reminderEnabled
 
@@ -396,6 +407,18 @@ class BillDetailActivity : AppCompatActivity() {
             timePicker.show(supportFragmentManager, "TIME_PICKER")
         }
 
+        dialogBinding.btnPickReceivedDate.setOnClickListener {
+            val datePicker = MaterialDatePicker.Builder.datePicker()
+                .setTitleText(R.string.bill_received_date)
+                .setSelection(if (selectedReceivedDate > 0) selectedReceivedDate else MaterialDatePicker.todayInUtcMilliseconds())
+                .build()
+            datePicker.addOnPositiveButtonClickListener {
+                selectedReceivedDate = it
+                dialogBinding.btnPickReceivedDate.text = dateFormat.format(Date(it))
+            }
+            datePicker.show(supportFragmentManager, "RECEIVED_DATE_PICKER")
+        }
+
         dialogBinding.btnAttachImage.setOnClickListener {
             pickImageLauncher.launch("image/*")
         }
@@ -416,6 +439,7 @@ class BillDetailActivity : AppCompatActivity() {
                 val amountText = dialogBinding.etAmount.text.toString()
                 val category = dialogBinding.actCategory.text.toString()
                 val description = dialogBinding.etDescription.text.toString()
+                val invoiceNumber = dialogBinding.etInvoiceNumber.text.toString().trim()
                 val isRecurring = dialogBinding.switchRecurring.isChecked
                 val intervalText = dialogBinding.actInterval.text.toString()
                 val reminderEnabled = dialogBinding.switchReminder.isChecked
@@ -462,7 +486,9 @@ class BillDetailActivity : AppCompatActivity() {
                         recurringInterval = recurringInterval,
                         reminderEnabled = reminderEnabled,
                         reminderDaysBefore = reminderDays,
-                        imagePath = pendingImagePath ?: ""
+                        imagePath = pendingImagePath ?: "",
+                        invoiceNumber = invoiceNumber,
+                        receivedDate = selectedReceivedDate
                     )
                     viewModel.updateBill(updatedBill)
 

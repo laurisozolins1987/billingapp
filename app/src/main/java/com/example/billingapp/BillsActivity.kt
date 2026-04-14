@@ -164,6 +164,7 @@ class BillsActivity : AppCompatActivity() {
         var selectedDate = calendar.timeInMillis
         var selectedHour = 12
         var selectedMinute = 0
+        var selectedReceivedDate: Long = 0
 
         dialogBinding.btnPickDate.text = dateFormat.format(Date(selectedDate))
         dialogBinding.btnPickTime.text = String.format("%02d:%02d", selectedHour, selectedMinute)
@@ -230,6 +231,18 @@ class BillsActivity : AppCompatActivity() {
             timePicker.show(supportFragmentManager, "TIME_PICKER")
         }
 
+        dialogBinding.btnPickReceivedDate.setOnClickListener {
+            val datePicker = MaterialDatePicker.Builder.datePicker()
+                .setTitleText(R.string.bill_received_date)
+                .setSelection(if (selectedReceivedDate > 0) selectedReceivedDate else MaterialDatePicker.todayInUtcMilliseconds())
+                .build()
+            datePicker.addOnPositiveButtonClickListener {
+                selectedReceivedDate = it
+                dialogBinding.btnPickReceivedDate.text = dateFormat.format(Date(it))
+            }
+            datePicker.show(supportFragmentManager, "RECEIVED_DATE_PICKER")
+        }
+
         dialogBinding.btnAttachImage.setOnClickListener {
             pickImageLauncher.launch("image/*")
         }
@@ -248,6 +261,7 @@ class BillsActivity : AppCompatActivity() {
                 val amountText = dialogBinding.etAmount.text.toString()
                 val category = dialogBinding.actCategory.text.toString()
                 val description = dialogBinding.etDescription.text.toString()
+                val invoiceNumber = dialogBinding.etInvoiceNumber.text.toString().trim()
                 val isRecurring = dialogBinding.switchRecurring.isChecked
                 val intervalText = dialogBinding.actInterval.text.toString()
                 val reminderEnabled = dialogBinding.switchReminder.isChecked
@@ -301,7 +315,9 @@ class BillsActivity : AppCompatActivity() {
                         recurringInterval = recurringInterval,
                         reminderEnabled = reminderEnabled,
                         reminderDaysBefore = reminderDays,
-                        imagePath = pendingImagePath ?: ""
+                        imagePath = pendingImagePath ?: "",
+                        invoiceNumber = invoiceNumber,
+                        receivedDate = selectedReceivedDate
                     )
 
                     viewModel.insertBill(bill)

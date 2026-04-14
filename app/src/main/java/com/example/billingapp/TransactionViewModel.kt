@@ -27,6 +27,7 @@ class TransactionViewModel(application: Application) : AndroidViewModel(applicat
     val typeFilter: LiveData<Boolean?> = _typeFilter
 
     val filteredTransactions: LiveData<List<Transaction>>
+    val filteredBills: LiveData<List<Bill>>
 
     data class FilterState(
         val dateRange: Pair<Long, Long>? = null,
@@ -60,6 +61,11 @@ class TransactionViewModel(application: Application) : AndroidViewModel(applicat
             addSource(allTransactions) { applyFilters(this, it, _filterState.value) }
             addSource(_filterState) { applyFilters(this, allTransactions.value, it) }
         }
+
+        filteredBills = MediatorLiveData<List<Bill>>().apply {
+            addSource(allBills) { applyBillSearch(this, it, _searchQuery.value) }
+            addSource(_searchQuery) { applyBillSearch(this, allBills.value, it) }
+        }
     }
 
     private fun applyFilters(
@@ -86,6 +92,26 @@ class TransactionViewModel(application: Application) : AndroidViewModel(applicat
             val typeOk = f.type?.let { t.isIncome == it } ?: true
 
             dateOk && searchOk && catOk && typeOk
+        }
+    }
+
+    private fun applyBillSearch(
+        result: MediatorLiveData<List<Bill>>,
+        bills: List<Bill>?,
+        query: String?
+    ) {
+        val list = bills ?: emptyList()
+        val q = (query ?: "").trim().lowercase()
+
+        result.value = if (q.isBlank()) {
+            list
+        } else {
+            list.filter { b ->
+                b.title.lowercase().contains(q) ||
+                        b.category.lowercase().contains(q) ||
+                        b.description.lowercase().contains(q) ||
+                        b.invoiceNumber.lowercase().contains(q)
+            }
         }
     }
 

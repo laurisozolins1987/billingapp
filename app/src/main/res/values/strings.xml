@@ -201,4 +201,10 @@
     <string name="bill_due_tomorrow">Rīt</string>
     <string name="bill_due_in_days">Pēc %d d.</string>
     <string name="bill_overdue_days">Kavējas %d d.</string>
+
+    <!-- Bill extra fields -->
+    <string name="bill_invoice_number">Rēķina numurs</string>
+    <string name="bill_received_date">Saņemšanas datums</string>
+    <string name="bill_no_invoice_number">Nav norādīts</string>
+    <string name="bill_not_received">Nav saņemts</string>
 </resources>
