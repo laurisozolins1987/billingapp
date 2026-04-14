@@ -46,6 +46,9 @@ class TransactionAdapter(
                     tvCategory.visibility = View.GONE
                 }
 
+                // Bookmark indicator
+                ivBookmark.visibility = if (transaction.isBookmarked) View.VISIBLE else View.GONE
+
                 // Created time
                 if (transaction.createdAt > 0) {
                     tvCreatedTime.text = context.getString(R.string.created_short, timeFormat.format(Date(transaction.createdAt)))

@@ -8,7 +8,6 @@
     <string name="date">Datums</string>
     <string name="save">Saglabāt</string>
     <string name="cancel">Atcelt</string>
-    <string name="archive">Arhīvs</string>
     <string name="balance">%.2f €</string>
     <string name="select_date">Izvēlēties datumu</string>
     <string name="no_transactions">Nav darījumu.\nNospied + lai pievienotu pirmo.</string>
@@ -107,4 +106,38 @@
     <!-- Time -->
     <string name="time">Laiks</string>
     <string name="select_time">Izvēlēties laiku</string>
+
+    <!-- Folders -->
+    <string name="folders">Mapes</string>
+    <string name="folder">Mape</string>
+    <string name="new_folder">Jauna mape</string>
+    <string name="no_folders">Nav mapju.\nIzveidojiet pirmo mapi.</string>
+    <string name="no_folder">Nav mapes</string>
+    <string name="enter_folder_name">Ievadiet mapes nosaukumu</string>
+    <string name="delete_folder">Dzēst mapi</string>
+    <string name="delete_folder_confirm">Vai tiešām vēlaties dzēst mapi \"%s\"? Darījumi netiks dzēsti.</string>
+    <string name="no_transactions_folder">Šajā mapē nav darījumu</string>
+    <string name="folders_count">%d mapes</string>
+    <string name="manage_folders">Pārvaldīt mapes</string>
+    <string name="manage_folders_desc">Organizējiet darījumus pa mapēm</string>
+
+    <!-- Bookmarks -->
+    <string name="bookmark">Saglabāt</string>
+    <string name="bookmarked">Saglabātie</string>
+
+    <!-- Archive -->
+    <string name="archive">Arhīvs</string>
+    <string name="archive_transaction">Arhivēt darījumu</string>
+    <string name="archive_hint">Arhivētie darījumi netiek rādīti galvenajā sarakstā. Nospiediet pogu lai atarhivētu.</string>
+    <string name="archive_empty">Arhīvs ir tukšs</string>
+    <string name="archive_desc">Arhivētie darījumi</string>
+    <string name="archive_count">%d arhīvā</string>
+    <string name="transaction_archived">Darījums arhivēts</string>
+    <string name="transaction_unarchived">Darījums atarhivēts</string>
+    <string name="unarchive">Atarhivēt</string>
+
+    <!-- Images -->
+    <string name="attach_receipt">Pievienot čeku / attēlu</string>
+    <string name="receipt">Čeks / Attēls</string>
+    <string name="remove_image">Noņemt attēlu</string>
 </resources>

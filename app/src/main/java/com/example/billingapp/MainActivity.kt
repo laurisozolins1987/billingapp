@@ -1,6 +1,8 @@
 package com.example.billingapp
 
 import android.content.Intent
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -8,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -25,6 +28,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
+import java.io.File
 import java.util.*
 import java.text.SimpleDateFormat
 
@@ -35,6 +39,41 @@ class MainActivity : AppCompatActivity() {
     private lateinit var adapter: TransactionAdapter
     private var isAuthenticated = false
     private var categoryNames: List<String> = emptyList()
+    private var folderNames: List<String> = emptyList()
+    private var folderList: List<Folder> = emptyList()
+    private var pendingImageUri: Uri? = null
+    private var pendingImagePath: String? = null
+    private var currentDialogBinding: DialogAddTransactionBinding? = null
+
+    private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        uri?.let {
+            pendingImageUri = it
+            val imagePath = copyImageToInternal(it)
+            if (imagePath != null) {
+                pendingImagePath = imagePath
+                currentDialogBinding?.let { db ->
+                    db.cardImagePreview.visibility = View.VISIBLE
+                    db.ivImagePreview.setImageBitmap(BitmapFactory.decodeFile(imagePath))
+                }
+            }
+        }
+    }
+
+    private fun copyImageToInternal(uri: Uri): String? {
+        return try {
+            val inputStream = contentResolver.openInputStream(uri) ?: return null
+            val dir = File(filesDir, "receipts")
+            if (!dir.exists()) dir.mkdirs()
+            val file = File(dir, "receipt_${System.currentTimeMillis()}.jpg")
+            file.outputStream().use { output ->
+                inputStream.copyTo(output)
+            }
+            inputStream.close()
+            file.absolutePath
+        } catch (e: Exception) {
+            null
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Apply dark mode before super
@@ -211,6 +250,12 @@ class MainActivity : AppCompatActivity() {
         viewModel.allCategories.observe(this) { categories ->
             categoryNames = categories.map { it.name }
         }
+
+        // Observe folders for the picker
+        viewModel.allFolders.observe(this) { folders ->
+            folderList = folders
+            folderNames = folders.map { it.name }
+        }
     }
 
     private fun showCategoryFilterPicker() {
@@ -243,6 +288,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun showAddTransactionDialog() {
         val dialogBinding = DialogAddTransactionBinding.inflate(LayoutInflater.from(this))
+        currentDialogBinding = dialogBinding
+        pendingImagePath = null
+        pendingImageUri = null
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
 
@@ -257,6 +305,27 @@ class MainActivity : AppCompatActivity() {
         // Setup category dropdown from DB
         val categoryAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, categoryNames)
         dialogBinding.actCategory.setAdapter(categoryAdapter)
+
+        // Setup folder dropdown
+        val folderOptions = mutableListOf(getString(R.string.no_folder))
+        folderOptions.addAll(folderNames)
+        val folderAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, folderOptions)
+        dialogBinding.actFolder.setAdapter(folderAdapter)
+
+        // Attach image button
+        dialogBinding.btnAttachImage.setOnClickListener {
+            pickImageLauncher.launch("image/*")
+        }
+
+        // Remove image button
+        dialogBinding.btnRemoveImage.setOnClickListener {
+            pendingImagePath?.let { path ->
+                File(path).delete()
+            }
+            pendingImagePath = null
+            pendingImageUri = null
+            dialogBinding.cardImagePreview.visibility = View.GONE
+        }
 
         // Toggle group syncs with hidden radio buttons
         dialogBinding.toggleType.addOnButtonCheckedListener { _, checkedId, isChecked ->
@@ -304,6 +373,11 @@ class MainActivity : AppCompatActivity() {
                 val category = dialogBinding.actCategory.text.toString()
                 val description = dialogBinding.etDescription.text.toString()
                 val isIncome = dialogBinding.rbIncome.isChecked
+                val selectedFolderName = dialogBinding.actFolder.text.toString()
+                val folderId = if (selectedFolderName.isNotEmpty() && selectedFolderName != getString(R.string.no_folder)) {
+                    folderList.find { it.name == selectedFolderName }?.id ?: 0
+                } else 0
+                val imagePath = pendingImagePath ?: ""
 
                 if (amountText.isNotEmpty()) {
                     try {
@@ -323,7 +397,9 @@ class MainActivity : AppCompatActivity() {
                             isIncome = isIncome,
                             category = category,
                             description = description,
-                            createdAt = System.currentTimeMillis()
+                            createdAt = System.currentTimeMillis(),
+                            folderId = folderId,
+                            imagePath = imagePath
                         )
                         viewModel.insert(transaction)
                     } catch (e: NumberFormatException) {
@@ -333,7 +409,17 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(this, R.string.enter_amount, Toast.LENGTH_SHORT).show()
                 }
             }
-            .setNegativeButton(R.string.cancel, null)
+            .setNegativeButton(R.string.cancel) { _, _ ->
+                // Clean up unused image if dialog cancelled
+                pendingImagePath?.let { path ->
+                    File(path).delete()
+                }
+                pendingImagePath = null
+                currentDialogBinding = null
+            }
+            .setOnDismissListener {
+                currentDialogBinding = null
+            }
             .show()
     }
 

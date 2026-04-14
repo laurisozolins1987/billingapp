@@ -19,21 +19,19 @@
         android:paddingHorizontal="16dp"
         android:paddingVertical="14dp">
 
-        <!-- Icon circle -->
         <FrameLayout
-            android:id="@+id/icon_container"
+            android:id="@+id/icon_container_archive"
             android:layout_width="44dp"
             android:layout_height="44dp">
 
             <ImageView
-                android:id="@+id/iv_transaction_type"
+                android:id="@+id/iv_archive_type"
                 android:layout_width="44dp"
                 android:layout_height="44dp"
                 android:padding="10dp"
                 tools:src="@drawable/ic_income" />
         </FrameLayout>
 
-        <!-- Text info -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -42,7 +40,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/tv_note"
+                android:id="@+id/tv_archive_note"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
@@ -53,62 +51,38 @@
                 tools:text="Alga" />
 
             <TextView
-                android:id="@+id/tv_category"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="1dp"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:textColor="?attr/colorPrimary"
-                android:textSize="11sp"
-                android:visibility="gone"
-                tools:text="Transports" />
-
-            <TextView
-                android:id="@+id/tv_date"
+                android:id="@+id/tv_archive_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:textColor="@color/text_hint"
                 android:textSize="12sp"
-                tools:text="14. apr. 2026, 15:30" />
+                tools:text="14. apr. 2026" />
         </LinearLayout>
 
-        <!-- Amount -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:gravity="end"
-            android:orientation="vertical">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/tv_amount"
+                android:id="@+id/tv_archive_amount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
+                android:layout_marginEnd="8dp"
+                android:textSize="15sp"
                 android:textStyle="bold"
-                tools:text="+1,500.00 €" />
+                tools:text="+100.00 €" />
 
-            <TextView
-                android:id="@+id/tv_created_time"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:textColor="@color/text_hint"
-                android:textSize="10sp"
-                tools:text="Izveidots 15:30" />
-
-            <ImageView
-                android:id="@+id/iv_bookmark"
-                android:layout_width="14dp"
-                android:layout_height="14dp"
-                android:layout_gravity="end"
-                android:layout_marginTop="2dp"
-                android:src="@drawable/ic_bookmark"
-                android:visibility="gone"
-                app:tint="#FFC107" />
+            <ImageButton
+                android:id="@+id/btn_unarchive"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/unarchive"
+                android:src="@drawable/ic_unarchive"
+                app:tint="?attr/colorPrimary" />
         </LinearLayout>
     </LinearLayout>
-
 </com.google.android.material.card.MaterialCardView>

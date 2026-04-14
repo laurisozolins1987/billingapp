@@ -1,12 +1,15 @@
 package com.example.billingapp
 
+import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.billingapp.databinding.ActivityTransactionDetailBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -39,6 +42,27 @@ class TransactionDetailActivity : AppCompatActivity() {
                 displayTransaction(transaction)
             } else {
                 finish()
+            }
+        }
+
+        // Bookmark toggle
+        binding.btnBookmark.setOnClickListener {
+            currentTransaction?.let { t ->
+                viewModel.toggleBookmark(t)
+            }
+        }
+
+        // Archive button
+        binding.btnArchive.setOnClickListener {
+            currentTransaction?.let { t ->
+                if (t.isArchived) {
+                    viewModel.unarchive(t)
+                    Toast.makeText(this, R.string.transaction_unarchived, Toast.LENGTH_SHORT).show()
+                } else {
+                    viewModel.archive(t)
+                    Toast.makeText(this, R.string.transaction_archived, Toast.LENGTH_SHORT).show()
+                    finish()
+                }
             }
         }
 
@@ -79,6 +103,24 @@ class TransactionDetailActivity : AppCompatActivity() {
             binding.ivTypeIcon.setImageResource(R.drawable.ic_expense)
         }
 
+        // Bookmark state
+        if (transaction.isBookmarked) {
+            binding.btnBookmark.setImageResource(R.drawable.ic_bookmark)
+            binding.btnBookmark.imageTintList = ContextCompat.getColorStateList(this, R.color.bookmark_gold)
+        } else {
+            binding.btnBookmark.setImageResource(R.drawable.ic_bookmark_border)
+            binding.btnBookmark.imageTintList = null
+        }
+
+        // Archive button state
+        if (transaction.isArchived) {
+            binding.btnArchive.text = getString(R.string.unarchive)
+            binding.btnArchive.setIconResource(R.drawable.ic_unarchive)
+        } else {
+            binding.btnArchive.text = getString(R.string.archive_transaction)
+            binding.btnArchive.setIconResource(R.drawable.ic_archive)
+        }
+
         // Note
         binding.tvDetailNote.text = transaction.note.ifEmpty {
             if (transaction.isIncome) getString(R.string.income) else getString(R.string.expense)
@@ -99,6 +141,34 @@ class TransactionDetailActivity : AppCompatActivity() {
             binding.tvDetailCreated.text = fullDateTimeFormat.format(Date(transaction.createdAt))
         } else {
             binding.tvDetailCreated.text = getString(R.string.unknown)
+        }
+
+        // Receipt image
+        if (transaction.imagePath.isNotEmpty()) {
+            val imageFile = File(transaction.imagePath)
+            if (imageFile.exists()) {
+                binding.cardReceipt.visibility = View.VISIBLE
+                binding.ivReceipt.setImageBitmap(BitmapFactory.decodeFile(transaction.imagePath))
+            } else {
+                binding.cardReceipt.visibility = View.GONE
+            }
+        } else {
+            binding.cardReceipt.visibility = View.GONE
+        }
+
+        // Folder
+        if (transaction.folderId > 0) {
+            viewModel.allFolders.observe(this) { folders ->
+                val folder = folders.find { it.id == transaction.folderId }
+                if (folder != null) {
+                    binding.cardFolder.visibility = View.VISIBLE
+                    binding.tvDetailFolder.text = folder.name
+                } else {
+                    binding.cardFolder.visibility = View.GONE
+                }
+            }
+        } else {
+            binding.cardFolder.visibility = View.GONE
         }
     }
 }

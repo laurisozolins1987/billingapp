@@ -15,5 +15,9 @@ data class Transaction(
     val description: String = "",
     val createdAt: Long = System.currentTimeMillis(),
     val isDeleted: Boolean = false,
-    val deletedAt: Long = 0
+    val deletedAt: Long = 0,
+    val folderId: Int = 0,
+    val imagePath: String = "",
+    val isBookmarked: Boolean = false,
+    val isArchived: Boolean = false
 )

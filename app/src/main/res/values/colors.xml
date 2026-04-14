@@ -36,4 +36,10 @@
     <!-- Legacy -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Bookmark -->
+    <color name="bookmark_gold">#FFC107</color>
+
+    <!-- Surface card -->
+    <color name="surface_card">#F5F5F5</color>
 </resources>

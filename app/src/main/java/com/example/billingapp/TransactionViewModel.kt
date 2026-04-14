@@ -8,7 +8,10 @@ class TransactionViewModel(application: Application) : AndroidViewModel(applicat
     private val repository: TransactionRepository
     val allTransactions: LiveData<List<Transaction>>
     val allCategories: LiveData<List<Category>>
+    val allFolders: LiveData<List<Folder>>
     val deletedTransactions: LiveData<List<Transaction>>
+    val bookmarkedTransactions: LiveData<List<Transaction>>
+    val archivedTransactions: LiveData<List<Transaction>>
 
     // Filter states
     private val _dateFilter = MutableLiveData<Pair<Long, Long>?>(null)
@@ -39,10 +42,13 @@ class TransactionViewModel(application: Application) : AndroidViewModel(applicat
 
     init {
         val db = AppDatabase.getDatabase(application)
-        repository = TransactionRepository(db.transactionDao(), db.categoryDao())
+        repository = TransactionRepository(db.transactionDao(), db.categoryDao(), db.folderDao())
         allTransactions = repository.allTransactions
         allCategories = repository.allCategories
+        allFolders = repository.allFolders
         deletedTransactions = repository.deletedTransactions
+        bookmarkedTransactions = repository.bookmarkedTransactions
+        archivedTransactions = repository.archivedTransactions
 
         filteredTransactions = MediatorLiveData<List<Transaction>>().apply {
             addSource(allTransactions) { applyFilters(this, it, _filterState.value) }
@@ -138,5 +144,37 @@ class TransactionViewModel(application: Application) : AndroidViewModel(applicat
 
     fun deleteCategory(category: Category) = viewModelScope.launch {
         repository.deleteCategory(category)
+    }
+
+    fun toggleBookmark(transaction: Transaction) = viewModelScope.launch {
+        repository.setBookmarked(transaction.id, !transaction.isBookmarked)
+    }
+
+    fun archive(transaction: Transaction) = viewModelScope.launch {
+        repository.archive(transaction.id)
+    }
+
+    fun unarchive(transaction: Transaction) = viewModelScope.launch {
+        repository.unarchive(transaction.id)
+    }
+
+    fun getTransactionsByFolder(folderId: Int): LiveData<List<Transaction>> {
+        return repository.getTransactionsByFolder(folderId)
+    }
+
+    fun getTransactionCountByFolder(folderId: Int): LiveData<Int> {
+        return repository.getTransactionCountByFolder(folderId)
+    }
+
+    fun insertFolder(name: String) = viewModelScope.launch {
+        repository.insertFolder(Folder(name = name))
+    }
+
+    fun updateFolder(folder: Folder) = viewModelScope.launch {
+        repository.updateFolder(folder)
+    }
+
+    fun deleteFolder(folder: Folder) = viewModelScope.launch {
+        repository.deleteFolder(folder)
     }
 }

@@ -13,6 +13,18 @@
         android:theme="@style/Theme.Billingapp">
 
         <activity
+            android:name=".FolderDetailActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".FoldersActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ArchiveActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".TrashActivity"
             android:exported="false" />
 

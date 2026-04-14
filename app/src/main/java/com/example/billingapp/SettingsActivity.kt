@@ -75,6 +75,12 @@ class SettingsActivity : AppCompatActivity() {
         viewModel.deletedTransactions.observe(this) { transactions ->
             binding.tvTrashCount.text = getString(R.string.trash_count, transactions.size)
         }
+        viewModel.archivedTransactions.observe(this) { transactions ->
+            binding.tvArchiveCount.text = getString(R.string.archive_count, transactions.size)
+        }
+        viewModel.allFolders.observe(this) { folders ->
+            binding.tvFoldersCount.text = getString(R.string.folders_count, folders.size)
+        }
     }
 
     private fun loadSettings() {
@@ -128,6 +134,14 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.layoutTrash.setOnClickListener {
             startActivity(Intent(this, TrashActivity::class.java))
+        }
+
+        binding.layoutArchive.setOnClickListener {
+            startActivity(Intent(this, ArchiveActivity::class.java))
+        }
+
+        binding.layoutFolders.setOnClickListener {
+            startActivity(Intent(this, FoldersActivity::class.java))
         }
     }
 
