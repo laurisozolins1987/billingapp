@@ -89,4 +89,22 @@
     <string name="weekday_fri">Pk</string>
     <string name="weekday_sat">Se</string>
     <string name="weekday_sun">Sv</string>
+
+    <!-- Trash -->
+    <string name="trash">Miskaste</string>
+    <string name="trash_desc">Dzēstie darījumi</string>
+    <string name="trash_hint">Velciet lai atjaunotu vai nospiediet pogas. Neatjaunotie darījumi paliks miskastē.</string>
+    <string name="trash_empty">Miskaste ir tukša</string>
+    <string name="empty_trash">Iztukšot miskasti</string>
+    <string name="empty_trash_confirm">Vai tiešām vēlaties neatgriezeniski dzēst visus darījumus no miskastes?</string>
+    <string name="trash_emptied">Miskaste iztukšota</string>
+    <string name="restore">Atjaunot</string>
+    <string name="transaction_restored">Darījums atjaunots</string>
+    <string name="permanent_delete_confirm">Šis darījums tiks neatgriezeniski dzēsts. Turpināt?</string>
+    <string name="deleted_at">Dzēsts %s</string>
+    <string name="trash_count">%d miskastē</string>
+
+    <!-- Time -->
+    <string name="time">Laiks</string>
+    <string name="select_time">Izvēlēties laiku</string>
 </resources>

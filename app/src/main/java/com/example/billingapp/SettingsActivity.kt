@@ -58,6 +58,7 @@ class SettingsActivity : AppCompatActivity() {
         loadSettings()
         setupListeners()
         observeCategories()
+        observeTrash()
     }
 
     private fun setupToolbar() {
@@ -67,6 +68,12 @@ class SettingsActivity : AppCompatActivity() {
     private fun observeCategories() {
         viewModel.allCategories.observe(this) { categories ->
             binding.tvCategoriesCount.text = getString(R.string.categories_count, categories.size)
+        }
+    }
+
+    private fun observeTrash() {
+        viewModel.deletedTransactions.observe(this) { transactions ->
+            binding.tvTrashCount.text = getString(R.string.trash_count, transactions.size)
         }
     }
 
@@ -117,6 +124,10 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.layoutExport.setOnClickListener {
             exportData()
+        }
+
+        binding.layoutTrash.setOnClickListener {
+            startActivity(Intent(this, TrashActivity::class.java))
         }
     }
 

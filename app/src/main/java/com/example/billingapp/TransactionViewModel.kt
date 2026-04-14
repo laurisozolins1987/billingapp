@@ -8,6 +8,7 @@ class TransactionViewModel(application: Application) : AndroidViewModel(applicat
     private val repository: TransactionRepository
     val allTransactions: LiveData<List<Transaction>>
     val allCategories: LiveData<List<Category>>
+    val deletedTransactions: LiveData<List<Transaction>>
 
     // Filter states
     private val _dateFilter = MutableLiveData<Pair<Long, Long>?>(null)
@@ -41,6 +42,7 @@ class TransactionViewModel(application: Application) : AndroidViewModel(applicat
         repository = TransactionRepository(db.transactionDao(), db.categoryDao())
         allTransactions = repository.allTransactions
         allCategories = repository.allCategories
+        deletedTransactions = repository.deletedTransactions
 
         filteredTransactions = MediatorLiveData<List<Transaction>>().apply {
             addSource(allTransactions) { applyFilters(this, it, _filterState.value) }
@@ -84,7 +86,19 @@ class TransactionViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     fun delete(transaction: Transaction) = viewModelScope.launch {
+        repository.softDelete(transaction.id)
+    }
+
+    fun permanentDelete(transaction: Transaction) = viewModelScope.launch {
         repository.delete(transaction)
+    }
+
+    fun restore(transaction: Transaction) = viewModelScope.launch {
+        repository.restore(transaction.id)
+    }
+
+    fun emptyTrash() = viewModelScope.launch {
+        repository.emptyTrash()
     }
 
     fun setDateFilter(start: Long, end: Long) {

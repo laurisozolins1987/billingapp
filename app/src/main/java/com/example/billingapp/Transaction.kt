@@ -13,5 +13,7 @@ data class Transaction(
     val isIncome: Boolean,
     val category: String = "",
     val description: String = "",
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+    val isDeleted: Boolean = false,
+    val deletedAt: Long = 0
 )

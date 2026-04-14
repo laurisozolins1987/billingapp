@@ -23,6 +23,8 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.TimeFormat
 import java.util.*
 import java.text.SimpleDateFormat
 
@@ -31,7 +33,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val viewModel: TransactionViewModel by viewModels()
     private lateinit var adapter: TransactionAdapter
-    private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     private var isAuthenticated = false
     private var categoryNames: List<String> = emptyList()
 
@@ -119,7 +120,7 @@ class MainActivity : AppCompatActivity() {
                 val transaction = adapter.currentList[position]
                 viewModel.delete(transaction)
                 Snackbar.make(binding.root, R.string.transaction_deleted, Snackbar.LENGTH_LONG)
-                    .setAction(R.string.undo) { viewModel.insert(transaction) }
+                    .setAction(R.string.undo) { viewModel.restore(transaction) }
                     .show()
             }
         }
@@ -242,8 +243,16 @@ class MainActivity : AppCompatActivity() {
 
     private fun showAddTransactionDialog() {
         val dialogBinding = DialogAddTransactionBinding.inflate(LayoutInflater.from(this))
-        var selectedDate = System.currentTimeMillis()
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+
+        val calendar = Calendar.getInstance()
+        var selectedDate = calendar.timeInMillis
+        var selectedHour = calendar.get(Calendar.HOUR_OF_DAY)
+        var selectedMinute = calendar.get(Calendar.MINUTE)
+
         dialogBinding.btnPickDate.text = dateFormat.format(Date(selectedDate))
+        dialogBinding.btnPickTime.text = timeFormat.format(Date(selectedDate))
 
         // Setup category dropdown from DB
         val categoryAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, categoryNames)
@@ -270,6 +279,22 @@ class MainActivity : AppCompatActivity() {
             datePicker.show(supportFragmentManager, "DATE_PICKER")
         }
 
+        dialogBinding.btnPickTime.setOnClickListener {
+            val timePicker = MaterialTimePicker.Builder()
+                .setTimeFormat(TimeFormat.CLOCK_24H)
+                .setHour(selectedHour)
+                .setMinute(selectedMinute)
+                .setTitleText(R.string.select_time)
+                .build()
+
+            timePicker.addOnPositiveButtonClickListener {
+                selectedHour = timePicker.hour
+                selectedMinute = timePicker.minute
+                dialogBinding.btnPickTime.text = String.format("%02d:%02d", selectedHour, selectedMinute)
+            }
+            timePicker.show(supportFragmentManager, "TIME_PICKER")
+        }
+
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.add_transaction)
             .setView(dialogBinding.root)
@@ -283,10 +308,18 @@ class MainActivity : AppCompatActivity() {
                 if (amountText.isNotEmpty()) {
                     try {
                         val amount = amountText.toDouble()
+                        // Combine date + time
+                        val finalCalendar = Calendar.getInstance().apply {
+                            timeInMillis = selectedDate
+                            set(Calendar.HOUR_OF_DAY, selectedHour)
+                            set(Calendar.MINUTE, selectedMinute)
+                            set(Calendar.SECOND, 0)
+                            set(Calendar.MILLISECOND, 0)
+                        }
                         val transaction = Transaction(
                             amount = amount,
                             note = note,
-                            date = selectedDate,
+                            date = finalCalendar.timeInMillis,
                             isIncome = isIncome,
                             category = category,
                             description = description,

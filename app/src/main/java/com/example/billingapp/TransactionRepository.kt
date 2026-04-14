@@ -8,6 +8,7 @@ class TransactionRepository(
 ) {
     val allTransactions: LiveData<List<Transaction>> = transactionDao.getAllTransactions()
     val allCategories: LiveData<List<Category>> = categoryDao.getAllCategories()
+    val deletedTransactions: LiveData<List<Transaction>> = transactionDao.getDeletedTransactions()
 
     suspend fun insert(transaction: Transaction) {
         transactionDao.insert(transaction)
@@ -19,6 +20,18 @@ class TransactionRepository(
 
     suspend fun delete(transaction: Transaction) {
         transactionDao.delete(transaction)
+    }
+
+    suspend fun softDelete(id: Int) {
+        transactionDao.softDelete(id)
+    }
+
+    suspend fun restore(id: Int) {
+        transactionDao.restore(id)
+    }
+
+    suspend fun emptyTrash() {
+        transactionDao.emptyTrash()
     }
 
     fun getTransactionsBetweenDates(startDate: Long, endDate: Long): LiveData<List<Transaction>> {
