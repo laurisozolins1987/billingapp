@@ -3,16 +3,21 @@ package com.example.billingapp
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.biometric.BiometricManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.billingapp.databinding.ActivitySettingsBinding
+import com.example.billingapp.databinding.DialogManageCategoriesBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class SettingsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySettingsBinding
+    private val viewModel: TransactionViewModel by viewModels()
 
     companion object {
         private const val PREFS_NAME = "app_prefs"
@@ -52,10 +57,17 @@ class SettingsActivity : AppCompatActivity() {
         setupToolbar()
         loadSettings()
         setupListeners()
+        observeCategories()
     }
 
     private fun setupToolbar() {
         binding.toolbarSettings.setNavigationOnClickListener { finish() }
+    }
+
+    private fun observeCategories() {
+        viewModel.allCategories.observe(this) { categories ->
+            binding.tvCategoriesCount.text = getString(R.string.categories_count, categories.size)
+        }
     }
 
     private fun loadSettings() {
@@ -99,9 +111,48 @@ class SettingsActivity : AppCompatActivity() {
             showCurrencyPicker()
         }
 
+        binding.layoutCategories.setOnClickListener {
+            showCategoryManager()
+        }
+
         binding.layoutExport.setOnClickListener {
             exportData()
         }
+    }
+
+    private fun showCategoryManager() {
+        val dialogBinding = DialogManageCategoriesBinding.inflate(LayoutInflater.from(this))
+        val categoryAdapter = CategoryAdapter { category ->
+            MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.delete_category)
+                .setMessage(getString(R.string.delete_category_confirm, category.name))
+                .setPositiveButton(R.string.delete) { _, _ ->
+                    viewModel.deleteCategory(category)
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .show()
+        }
+
+        dialogBinding.rvCategories.layoutManager = LinearLayoutManager(this)
+        dialogBinding.rvCategories.adapter = categoryAdapter
+
+        viewModel.allCategories.observe(this) { categories ->
+            categoryAdapter.submitList(categories)
+        }
+
+        dialogBinding.btnAddCategory.setOnClickListener {
+            val name = dialogBinding.etNewCategory.text.toString().trim()
+            if (name.isNotEmpty()) {
+                viewModel.insertCategory(name)
+                dialogBinding.etNewCategory.text?.clear()
+            }
+        }
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.manage_categories)
+            .setView(dialogBinding.root)
+            .setPositiveButton(R.string.close, null)
+            .show()
     }
 
     private fun showCurrencyPicker() {

@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.billingapp.databinding.ActivityMainBinding
 import com.example.billingapp.databinding.DialogAddTransactionBinding
+import com.google.android.material.chip.Chip
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -32,6 +33,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var adapter: TransactionAdapter
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     private var isAuthenticated = false
+    private var categoryNames: List<String> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Apply dark mode before super
@@ -49,6 +51,7 @@ class MainActivity : AppCompatActivity() {
         setupObservers()
         setupListeners()
         setupSearch()
+        setupFilterChips()
     }
 
     override fun onResume() {
@@ -140,9 +143,9 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
 
-        // Long press on calendar to clear filter
+        // Long press on calendar to clear date filter
         binding.btnCalendar.setOnLongClickListener {
-            viewModel.clearFilter()
+            viewModel.clearDateFilter()
             binding.tvFilterLabel.visibility = View.GONE
             Toast.makeText(this, R.string.filter_cleared, Toast.LENGTH_SHORT).show()
             true
@@ -154,15 +157,74 @@ class MainActivity : AppCompatActivity() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
-                val query = s?.toString()?.trim() ?: ""
-                if (query.isNotEmpty()) {
-                    viewModel.search(query)
-                    binding.tvFilterLabel.visibility = View.GONE
-                } else {
-                    viewModel.clearFilter()
-                }
+                viewModel.search(s?.toString()?.trim() ?: "")
             }
         })
+    }
+
+    private fun setupFilterChips() {
+        // Type filter chips
+        binding.chipAll.setOnClickListener {
+            viewModel.setTypeFilter(null)
+            binding.chipAll.isChecked = true
+            binding.chipIncome.isChecked = false
+            binding.chipExpense.isChecked = false
+        }
+        binding.chipIncome.setOnClickListener {
+            viewModel.setTypeFilter(true)
+            binding.chipAll.isChecked = false
+            binding.chipIncome.isChecked = true
+            binding.chipExpense.isChecked = false
+        }
+        binding.chipExpense.setOnClickListener {
+            viewModel.setTypeFilter(false)
+            binding.chipAll.isChecked = false
+            binding.chipIncome.isChecked = false
+            binding.chipExpense.isChecked = true
+        }
+
+        // Category chip - shows picker dialog
+        binding.chipCategory.setOnClickListener {
+            showCategoryFilterPicker()
+        }
+
+        // Observe category filter to update chip text
+        viewModel.categoryFilter.observe(this) { category ->
+            if (category != null) {
+                binding.chipCategory.text = category
+                binding.chipCategory.isChecked = true
+                binding.chipCategory.isCloseIconVisible = true
+            } else {
+                binding.chipCategory.text = getString(R.string.category)
+                binding.chipCategory.isChecked = false
+                binding.chipCategory.isCloseIconVisible = false
+            }
+        }
+        binding.chipCategory.setOnCloseIconClickListener {
+            viewModel.setCategoryFilter(null)
+        }
+
+        // Observe categories for the picker
+        viewModel.allCategories.observe(this) { categories ->
+            categoryNames = categories.map { it.name }
+        }
+    }
+
+    private fun showCategoryFilterPicker() {
+        if (categoryNames.isEmpty()) {
+            Toast.makeText(this, R.string.no_categories, Toast.LENGTH_SHORT).show()
+            return
+        }
+        val items = categoryNames.toTypedArray()
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.filter_by_category)
+            .setItems(items) { _, which ->
+                viewModel.setCategoryFilter(items[which])
+            }
+            .setNeutralButton(R.string.clear_filter) { _, _ ->
+                viewModel.setCategoryFilter(null)
+            }
+            .show()
     }
 
     private fun updateSummary(transactions: List<Transaction>) {
@@ -181,9 +243,8 @@ class MainActivity : AppCompatActivity() {
         var selectedDate = System.currentTimeMillis()
         dialogBinding.btnPickDate.text = dateFormat.format(Date(selectedDate))
 
-        // Setup category dropdown
-        val categories = resources.getStringArray(R.array.categories)
-        val categoryAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, categories)
+        // Setup category dropdown from DB
+        val categoryAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, categoryNames)
         dialogBinding.actCategory.setAdapter(categoryAdapter)
 
         // Toggle group syncs with hidden radio buttons

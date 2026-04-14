@@ -53,24 +53,52 @@
                 tools:text="Alga" />
 
             <TextView
+                android:id="@+id/tv_category"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="11sp"
+                android:visibility="gone"
+                tools:text="Transports" />
+
+            <TextView
                 android:id="@+id/tv_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:textColor="@color/text_hint"
-                android:textSize="13sp"
-                tools:text="14. apr. 2026" />
+                android:textSize="12sp"
+                tools:text="14. apr. 2026, 15:30" />
         </LinearLayout>
 
         <!-- Amount -->
-        <TextView
-            android:id="@+id/tv_amount"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            tools:text="+1,500.00 €" />
+            android:gravity="end"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_amount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:text="+1,500.00 €" />
+
+            <TextView
+                android:id="@+id/tv_created_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textColor="@color/text_hint"
+                android:textSize="10sp"
+                tools:text="Izveidots 15:30" />
+        </LinearLayout>
     </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>

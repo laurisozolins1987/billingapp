@@ -2,8 +2,12 @@ package com.example.billingapp
 
 import androidx.lifecycle.LiveData
 
-class TransactionRepository(private val transactionDao: TransactionDao) {
+class TransactionRepository(
+    private val transactionDao: TransactionDao,
+    private val categoryDao: CategoryDao
+) {
     val allTransactions: LiveData<List<Transaction>> = transactionDao.getAllTransactions()
+    val allCategories: LiveData<List<Category>> = categoryDao.getAllCategories()
 
     suspend fun insert(transaction: Transaction) {
         transactionDao.insert(transaction)
@@ -27,5 +31,13 @@ class TransactionRepository(private val transactionDao: TransactionDao) {
 
     fun getTransactionById(id: Int): LiveData<Transaction?> {
         return transactionDao.getTransactionById(id)
+    }
+
+    suspend fun insertCategory(category: Category) {
+        categoryDao.insert(category)
+    }
+
+    suspend fun deleteCategory(category: Category) {
+        categoryDao.delete(category)
     }
 }
