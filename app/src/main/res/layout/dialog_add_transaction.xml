@@ -76,6 +76,39 @@
             android:inputType="textCapSentences" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <!-- Category -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_category"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:hint="@string/category"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+
+        <AutoCompleteTextView
+            android:id="@+id/act_category"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="none" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Description -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:hint="@string/description"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textMultiLine|textCapSentences"
+            android:maxLines="3"
+            android:minLines="2" />
+    </com.google.android.material.textfield.TextInputLayout>
+
     <!-- Hidden radio group for compatibility -->
     <RadioGroup
         android:id="@+id/rg_type"

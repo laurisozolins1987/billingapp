@@ -18,6 +18,36 @@
     <string name="recent_transactions">Pēdējie darījumi</string>
     <string name="transaction_count">%d darījumi</string>
 
+    <!-- Search -->
+    <string name="search_hint">Meklēt pēc piezīmes…</string>
+
+    <!-- Detail view -->
+    <string name="transaction_detail">Darījuma detaļas</string>
+    <string name="category">Kategorija</string>
+    <string name="description">Apraksts</string>
+    <string name="transaction_date">Darījuma datums</string>
+    <string name="created_at">Izveidots</string>
+    <string name="no_category">Nav norādīta</string>
+    <string name="no_description">Nav apraksta</string>
+    <string name="unknown">Nezināms</string>
+    <string name="delete_transaction">Dzēst darījumu</string>
+    <string name="delete_confirm">Vai tiešām vēlaties dzēst šo darījumu?</string>
+    <string name="delete">Dzēst</string>
+
+    <!-- Categories -->
+    <string-array name="categories">
+        <item>Alga</item>
+        <item>Ēdiens</item>
+        <item>Transports</item>
+        <item>Izklaides</item>
+        <item>Veselība</item>
+        <item>Komunālie</item>
+        <item>Apģērbs</item>
+        <item>Izglītība</item>
+        <item>Dāvanas</item>
+        <item>Cits</item>
+    </string-array>
+
     <!-- Settings -->
     <string name="settings">Iestatījumi</string>
     <string name="settings_appearance">Izskats</string>

@@ -2,8 +2,11 @@ package com.example.billingapp
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -26,7 +29,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private val viewModel: TransactionViewModel by viewModels()
-    private val adapter = TransactionAdapter()
+    private lateinit var adapter: TransactionAdapter
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     private var isAuthenticated = false
 
@@ -45,6 +48,7 @@ class MainActivity : AppCompatActivity() {
         setupRecyclerView()
         setupObservers()
         setupListeners()
+        setupSearch()
     }
 
     override fun onResume() {
@@ -97,6 +101,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
+        adapter = TransactionAdapter { transaction ->
+            val intent = Intent(this, TransactionDetailActivity::class.java)
+            intent.putExtra(TransactionDetailActivity.EXTRA_TRANSACTION_ID, transaction.id)
+            startActivity(intent)
+        }
         binding.rvTransactions.layoutManager = LinearLayoutManager(this)
         binding.rvTransactions.adapter = adapter
 
@@ -140,6 +149,22 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupSearch() {
+        binding.etSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                val query = s?.toString()?.trim() ?: ""
+                if (query.isNotEmpty()) {
+                    viewModel.search(query)
+                    binding.tvFilterLabel.visibility = View.GONE
+                } else {
+                    viewModel.clearFilter()
+                }
+            }
+        })
+    }
+
     private fun updateSummary(transactions: List<Transaction>) {
         val currencySymbol = SettingsActivity.getCurrencySymbol(this)
         val income = transactions.filter { it.isIncome }.sumOf { it.amount }
@@ -155,6 +180,11 @@ class MainActivity : AppCompatActivity() {
         val dialogBinding = DialogAddTransactionBinding.inflate(LayoutInflater.from(this))
         var selectedDate = System.currentTimeMillis()
         dialogBinding.btnPickDate.text = dateFormat.format(Date(selectedDate))
+
+        // Setup category dropdown
+        val categories = resources.getStringArray(R.array.categories)
+        val categoryAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, categories)
+        dialogBinding.actCategory.setAdapter(categoryAdapter)
 
         // Toggle group syncs with hidden radio buttons
         dialogBinding.toggleType.addOnButtonCheckedListener { _, checkedId, isChecked ->
@@ -183,6 +213,8 @@ class MainActivity : AppCompatActivity() {
             .setPositiveButton(R.string.save) { _, _ ->
                 val amountText = dialogBinding.etAmount.text.toString()
                 val note = dialogBinding.etNote.text.toString()
+                val category = dialogBinding.actCategory.text.toString()
+                val description = dialogBinding.etDescription.text.toString()
                 val isIncome = dialogBinding.rbIncome.isChecked
 
                 if (amountText.isNotEmpty()) {
@@ -192,7 +224,10 @@ class MainActivity : AppCompatActivity() {
                             amount = amount,
                             note = note,
                             date = selectedDate,
-                            isIncome = isIncome
+                            isIncome = isIncome,
+                            category = category,
+                            description = description,
+                            createdAt = System.currentTimeMillis()
                         )
                         viewModel.insert(transaction)
                     } catch (e: NumberFormatException) {

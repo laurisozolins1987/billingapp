@@ -10,7 +10,9 @@ import com.example.billingapp.databinding.ItemTransactionBinding
 import java.text.SimpleDateFormat
 import java.util.*
 
-class TransactionAdapter : ListAdapter<Transaction, TransactionAdapter.TransactionViewHolder>(TransactionDiffCallback()) {
+class TransactionAdapter(
+    private val onItemClick: (Transaction) -> Unit = {}
+) : ListAdapter<Transaction, TransactionAdapter.TransactionViewHolder>(TransactionDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransactionViewHolder {
         val binding = ItemTransactionBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -18,7 +20,9 @@ class TransactionAdapter : ListAdapter<Transaction, TransactionAdapter.Transacti
     }
 
     override fun onBindViewHolder(holder: TransactionViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        val transaction = getItem(position)
+        holder.bind(transaction)
+        holder.itemView.setOnClickListener { onItemClick(transaction) }
     }
 
     class TransactionViewHolder(private val binding: ItemTransactionBinding) : RecyclerView.ViewHolder(binding.root) {

@@ -9,6 +9,9 @@ data class Transaction(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val amount: Double,
     val note: String,
-    val date: Long, // Store date as timestamp
-    val isIncome: Boolean
+    val date: Long,
+    val isIncome: Boolean,
+    val category: String = "",
+    val description: String = "",
+    val createdAt: Long = System.currentTimeMillis()
 )

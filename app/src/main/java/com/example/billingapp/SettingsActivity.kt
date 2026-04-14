@@ -150,10 +150,10 @@ class SettingsActivity : AppCompatActivity() {
                     Thread {
                         val transactions = db.transactionDao().getAllTransactionsSync()
                         val csvContent = buildString {
-                            appendLine("ID,Amount,Note,Date,Type")
+                            appendLine("ID,Amount,Note,Category,Description,Date,CreatedAt,Type")
                             transactions.forEach { t ->
                                 val type = if (t.isIncome) "Income" else "Expense"
-                                appendLine("${t.id},${t.amount},\"${t.note}\",${t.date},$type")
+                                appendLine("${t.id},${t.amount},\"${t.note}\",\"${t.category}\",\"${t.description}\",${t.date},${t.createdAt},$type")
                             }
                         }
                         contentResolver.openOutputStream(uri)?.use { outputStream ->
