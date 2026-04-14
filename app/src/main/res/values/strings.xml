@@ -136,6 +136,10 @@
     <string name="transaction_unarchived">Darījums atarhivēts</string>
     <string name="unarchive">Atarhivēt</string>
 
+    <!-- Edit -->
+    <string name="edit_transaction">Labot darījumu</string>
+    <string name="transaction_updated">Darījums atjaunināts</string>
+
     <!-- Images -->
     <string name="attach_receipt">Pievienot čeku / attēlu</string>
     <string name="receipt">Čeks / Attēls</string>
