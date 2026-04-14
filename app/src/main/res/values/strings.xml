@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Mana Nauda</string>
+    <string name="income">Ieņēmumi</string>
+    <string name="expense">Izdevumi</string>
+    <string name="add_transaction">Pievienot darījumu</string>
+    <string name="amount">Summa</string>
+    <string name="note">Piezīme</string>
+    <string name="date">Datums</string>
+    <string name="save">Saglabāt</string>
+    <string name="cancel">Atcelt</string>
+    <string name="archive">Arhīvs</string>
+    <string name="balance">Bilance: %.2f</string>
+    <string name="select_date">Izvēlēties datumu</string>
+    <string name="no_transactions">Nav darījumu. Nospied + lai pievienotu.</string>
+    <string name="transaction_deleted">Darījums dzēsts</string>
+    <string name="undo">Atsaukt</string>
+</resources>
