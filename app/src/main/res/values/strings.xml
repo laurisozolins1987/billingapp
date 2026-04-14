@@ -189,4 +189,16 @@
     <string name="bill_reminder_text">%s — %s. Neaizmirstiet apmaksāt!</string>
     <string name="bill_reminder_channel">Rēķinu atgādinājumi</string>
     <string name="bill_reminder_channel_desc">Paziņojumi par tuvojošos rēķinu termiņiem</string>
+
+    <!-- Bills summary on main page -->
+    <string name="upcoming_bills">Aktuālie rēķini</string>
+    <string name="bills_total_unpaid">Kopā jāmaksā</string>
+    <string name="bills_overdue_label">Kavējas</string>
+    <string name="bills_upcoming_label">Tuvākajās 7 dienās</string>
+    <string name="bills_no_upcoming">Nav aktuālu rēķinu</string>
+    <string name="bills_see_all">Skatīt visus</string>
+    <string name="bill_due_today">Šodien</string>
+    <string name="bill_due_tomorrow">Rīt</string>
+    <string name="bill_due_in_days">Pēc %d d.</string>
+    <string name="bill_overdue_days">Kavējas %d d.</string>
 </resources>

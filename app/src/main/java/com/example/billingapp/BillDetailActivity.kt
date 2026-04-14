@@ -230,6 +230,8 @@ class BillDetailActivity : AppCompatActivity() {
                 .setHour(selectedHour)
                 .setMinute(selectedMinute)
                 .setTitleText(R.string.select_time)
+                .setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK)
+                .setTheme(R.style.ThemeOverlay_Billingapp_TimePicker)
                 .build()
             timePicker.addOnPositiveButtonClickListener {
                 selectedHour = timePicker.hour
@@ -383,6 +385,8 @@ class BillDetailActivity : AppCompatActivity() {
                 .setHour(selectedHour)
                 .setMinute(selectedMinute)
                 .setTitleText(R.string.select_time)
+                .setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK)
+                .setTheme(R.style.ThemeOverlay_Billingapp_TimePicker)
                 .build()
             timePicker.addOnPositiveButtonClickListener {
                 selectedHour = timePicker.hour

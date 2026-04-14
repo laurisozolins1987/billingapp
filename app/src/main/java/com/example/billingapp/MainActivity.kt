@@ -174,6 +174,10 @@ class MainActivity : AppCompatActivity() {
             binding.rvTransactions.visibility = if (transactions.isEmpty()) View.GONE else View.VISIBLE
             binding.tvTransactionCount.text = getString(R.string.transaction_count, transactions.size)
         }
+
+        viewModel.unpaidBills.observe(this) { bills ->
+            updateBillsSummary(bills)
+        }
     }
 
     private fun setupListeners() {
@@ -185,6 +189,12 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
         binding.btnBills.setOnClickListener {
+            startActivity(Intent(this, BillsActivity::class.java))
+        }
+        binding.tvBillsSeeAll.setOnClickListener {
+            startActivity(Intent(this, BillsActivity::class.java))
+        }
+        binding.cardBillsSummary.setOnClickListener {
             startActivity(Intent(this, BillsActivity::class.java))
         }
 
@@ -289,6 +299,83 @@ class MainActivity : AppCompatActivity() {
         binding.tvExpense.text = String.format("%,.2f %s", expense, currencySymbol)
     }
 
+    private fun updateBillsSummary(unpaidBills: List<Bill>) {
+        if (unpaidBills.isEmpty()) {
+            binding.cardBillsSummary.visibility = View.GONE
+            return
+        }
+
+        binding.cardBillsSummary.visibility = View.VISIBLE
+        val currencySymbol = SettingsActivity.getCurrencySymbol(this)
+        val todayStart = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+        val sevenDaysLater = todayStart + 7 * 24 * 60 * 60 * 1000L
+
+        val totalUnpaid = unpaidBills.sumOf { it.amount }
+        val overdueBills = unpaidBills.filter { it.dueDate < todayStart }
+        val upcomingBills = unpaidBills.filter { it.dueDate in todayStart..sevenDaysLater }
+            .sortedBy { it.dueDate }
+
+        // Total
+        binding.tvBillsTotal.text = String.format("%,.2f %s", totalUnpaid, currencySymbol)
+
+        // Overdue
+        if (overdueBills.isNotEmpty()) {
+            binding.rowBillsOverdue.visibility = View.VISIBLE
+            val overdueTotal = overdueBills.sumOf { it.amount }
+            binding.tvBillsOverdue.text = "${overdueBills.size} ${getString(R.string.bill_overdue).lowercase()} — ${String.format("%,.2f %s", overdueTotal, currencySymbol)}"
+        } else {
+            binding.rowBillsOverdue.visibility = View.GONE
+        }
+
+        // Upcoming 7 days
+        if (upcomingBills.isNotEmpty()) {
+            binding.rowBillsUpcoming.visibility = View.VISIBLE
+            val upcomingTotal = upcomingBills.sumOf { it.amount }
+            binding.tvBillsUpcoming.text = "${upcomingBills.size} ${getString(R.string.bills_upcoming_label).lowercase()} — ${String.format("%,.2f %s", upcomingTotal, currencySymbol)}"
+        } else {
+            binding.rowBillsUpcoming.visibility = View.GONE
+        }
+
+        // Show individual upcoming bills (max 3)
+        binding.layoutUpcomingBills.removeAllViews()
+        val dateFormat = SimpleDateFormat("dd.MM", Locale.getDefault())
+        val displayBills = (overdueBills.sortedBy { it.dueDate } + upcomingBills).take(3)
+
+        if (displayBills.isEmpty()) {
+            binding.tvBillsEmpty.visibility = View.VISIBLE
+        } else {
+            binding.tvBillsEmpty.visibility = View.GONE
+            for (bill in displayBills) {
+                val row = layoutInflater.inflate(android.R.layout.simple_list_item_2, binding.layoutUpcomingBills, false)
+                val text1 = row.findViewById<android.widget.TextView>(android.R.id.text1)
+                val text2 = row.findViewById<android.widget.TextView>(android.R.id.text2)
+
+                text1.text = "${bill.title}  •  ${String.format("%,.2f %s", bill.amount, currencySymbol)}"
+                text1.textSize = 13f
+                text1.setTextColor(getColor(R.color.on_surface))
+
+                val daysUntil = ((bill.dueDate - todayStart) / (24 * 60 * 60 * 1000L)).toInt()
+                val dueLabel = when {
+                    daysUntil < 0 -> getString(R.string.bill_overdue_days, -daysUntil)
+                    daysUntil == 0 -> getString(R.string.bill_due_today)
+                    daysUntil == 1 -> getString(R.string.bill_due_tomorrow)
+                    else -> getString(R.string.bill_due_in_days, daysUntil)
+                }
+                text2.text = "${dateFormat.format(Date(bill.dueDate))}  •  $dueLabel"
+                text2.textSize = 12f
+                text2.setTextColor(if (daysUntil < 0) getColor(R.color.bill_overdue) else getColor(R.color.bill_blue))
+
+                row.setPadding(0, 4, 0, 4)
+                binding.layoutUpcomingBills.addView(row)
+            }
+        }
+    }
+
     private fun showAddTransactionDialog() {
         val dialogBinding = DialogAddTransactionBinding.inflate(LayoutInflater.from(this))
         currentDialogBinding = dialogBinding
@@ -357,6 +444,8 @@ class MainActivity : AppCompatActivity() {
                 .setHour(selectedHour)
                 .setMinute(selectedMinute)
                 .setTitleText(R.string.select_time)
+                .setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK)
+                .setTheme(R.style.ThemeOverlay_Billingapp_TimePicker)
                 .build()
 
             timePicker.addOnPositiveButtonClickListener {
