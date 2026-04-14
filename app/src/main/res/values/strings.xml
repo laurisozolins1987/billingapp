@@ -9,9 +9,39 @@
     <string name="save">Saglabāt</string>
     <string name="cancel">Atcelt</string>
     <string name="archive">Arhīvs</string>
-    <string name="balance">Bilance: %.2f</string>
+    <string name="balance">%.2f €</string>
     <string name="select_date">Izvēlēties datumu</string>
-    <string name="no_transactions">Nav darījumu. Nospied + lai pievienotu.</string>
+    <string name="no_transactions">Nav darījumu.\nNospied + lai pievienotu pirmo.</string>
     <string name="transaction_deleted">Darījums dzēsts</string>
     <string name="undo">Atsaukt</string>
+    <string name="total_balance">Kopējā bilance</string>
+    <string name="recent_transactions">Pēdējie darījumi</string>
+    <string name="transaction_count">%d darījumi</string>
+
+    <!-- Settings -->
+    <string name="settings">Iestatījumi</string>
+    <string name="settings_appearance">Izskats</string>
+    <string name="settings_security">Drošība</string>
+    <string name="settings_data">Dati</string>
+    <string name="settings_about">Par lietotni</string>
+    <string name="dark_mode">Tumšais režīms</string>
+    <string name="dark_mode_desc">Izmantot tumšo tēmu</string>
+    <string name="currency">Valūta</string>
+    <string name="biometric_lock">Biometriskā bloķēšana</string>
+    <string name="biometric_lock_desc">Pieprasīt pirkstu nospiedumu vai sejas atpazīšanu</string>
+    <string name="biometric_not_available">Biometriskā autentifikācija nav pieejama</string>
+    <string name="biometric_title">Autentifikācija</string>
+    <string name="biometric_subtitle">Izmantojiet pirkstu nospiedumu lai piekļūtu lietotnei</string>
+    <string name="biometric_negative">Atcelt</string>
+    <string name="export_data">Eksportēt datus</string>
+    <string name="export_data_desc">Saglabāt CSV failu</string>
+    <string name="export_success">Dati eksportēti veiksmīgi</string>
+    <string name="export_error">Kļūda eksportējot datus</string>
+    <string name="app_version">Mana Nauda v1.0</string>
+    <string name="enter_amount">Ievadiet summu</string>
+    <string name="invalid_amount">Nederīgs summas formāts</string>
+    <string name="filter_cleared">Filtrs notīrīts</string>
+    <string name="currency_eur">EUR (€)</string>
+    <string name="currency_usd">USD ($)</string>
+    <string name="currency_gbp">GBP (£)</string>
 </resources>

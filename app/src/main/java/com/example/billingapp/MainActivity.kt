@@ -1,18 +1,23 @@
 package com.example.billingapp
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricPrompt
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.billingapp.databinding.ActivityMainBinding
 import com.example.billingapp.databinding.DialogAddTransactionBinding
 import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import java.util.*
 import java.text.SimpleDateFormat
@@ -23,8 +28,16 @@ class MainActivity : AppCompatActivity() {
     private val viewModel: TransactionViewModel by viewModels()
     private val adapter = TransactionAdapter()
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    private var isAuthenticated = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Apply dark mode before super
+        if (SettingsActivity.isDarkMode(this)) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        }
+
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -32,6 +45,55 @@ class MainActivity : AppCompatActivity() {
         setupRecyclerView()
         setupObservers()
         setupListeners()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (SettingsActivity.isBiometricEnabled(this) && !isAuthenticated) {
+            showBiometricPrompt()
+        }
+        // Refresh adapter in case currency changed
+        adapter.notifyDataSetChanged()
+    }
+
+    private fun showBiometricPrompt() {
+        val biometricManager = BiometricManager.from(this)
+        val canAuthenticate = biometricManager.canAuthenticate(
+            BiometricManager.Authenticators.BIOMETRIC_STRONG or
+                    BiometricManager.Authenticators.BIOMETRIC_WEAK
+        )
+        if (canAuthenticate != BiometricManager.BIOMETRIC_SUCCESS) {
+            isAuthenticated = true
+            return
+        }
+
+        val executor = ContextCompat.getMainExecutor(this)
+        val biometricPrompt = BiometricPrompt(this, executor,
+            object : BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                    isAuthenticated = true
+                }
+
+                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                    if (errorCode == BiometricPrompt.ERROR_USER_CANCELED ||
+                        errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON
+                    ) {
+                        finishAffinity()
+                    }
+                }
+
+                override fun onAuthenticationFailed() {
+                    // Stay on prompt
+                }
+            })
+
+        val promptInfo = BiometricPrompt.PromptInfo.Builder()
+            .setTitle(getString(R.string.biometric_title))
+            .setSubtitle(getString(R.string.biometric_subtitle))
+            .setNegativeButtonText(getString(R.string.biometric_negative))
+            .build()
+
+        biometricPrompt.authenticate(promptInfo)
     }
 
     private fun setupRecyclerView() {
@@ -55,32 +117,38 @@ class MainActivity : AppCompatActivity() {
     private fun setupObservers() {
         viewModel.filteredTransactions.observe(this) { transactions ->
             adapter.submitList(transactions)
-            updateBalance(transactions)
+            updateSummary(transactions)
             binding.tvEmpty.visibility = if (transactions.isEmpty()) View.VISIBLE else View.GONE
             binding.rvTransactions.visibility = if (transactions.isEmpty()) View.GONE else View.VISIBLE
+            binding.tvTransactionCount.text = getString(R.string.transaction_count, transactions.size)
         }
     }
 
     private fun setupListeners() {
-        binding.fabAdd.setOnClickListener {
-            showAddTransactionDialog()
+        binding.fabAdd.setOnClickListener { showAddTransactionDialog() }
+        binding.btnCalendar.setOnClickListener { showDateRangePicker() }
+        binding.btnSettings.setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
         }
 
-        binding.btnFilterDate.setOnClickListener {
-            showDatePicker()
-        }
-        
-        binding.btnFilterDate.setOnLongClickListener {
+        // Long press on calendar to clear filter
+        binding.btnCalendar.setOnLongClickListener {
             viewModel.clearFilter()
-            binding.btnFilterDate.setText(R.string.select_date)
-            Toast.makeText(this, "Filtrs notīrīts", Toast.LENGTH_SHORT).show()
+            binding.tvFilterLabel.visibility = View.GONE
+            Toast.makeText(this, R.string.filter_cleared, Toast.LENGTH_SHORT).show()
             true
         }
     }
 
-    private fun updateBalance(transactions: List<Transaction>) {
-        val total = transactions.sumOf { if (it.isIncome) it.amount else -it.amount }
-        binding.tvBalance.text = getString(R.string.balance, total)
+    private fun updateSummary(transactions: List<Transaction>) {
+        val currencySymbol = SettingsActivity.getCurrencySymbol(this)
+        val income = transactions.filter { it.isIncome }.sumOf { it.amount }
+        val expense = transactions.filter { !it.isIncome }.sumOf { it.amount }
+        val total = income - expense
+
+        binding.tvBalance.text = String.format("%,.2f %s", total, currencySymbol)
+        binding.tvIncome.text = String.format("%,.2f %s", income, currencySymbol)
+        binding.tvExpense.text = String.format("%,.2f %s", expense, currencySymbol)
     }
 
     private fun showAddTransactionDialog() {
@@ -88,10 +156,18 @@ class MainActivity : AppCompatActivity() {
         var selectedDate = System.currentTimeMillis()
         dialogBinding.btnPickDate.text = dateFormat.format(Date(selectedDate))
 
+        // Toggle group syncs with hidden radio buttons
+        dialogBinding.toggleType.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked) {
+                dialogBinding.rbIncome.isChecked = checkedId == R.id.btn_type_income
+                dialogBinding.rbExpense.isChecked = checkedId == R.id.btn_type_expense
+            }
+        }
+
         dialogBinding.btnPickDate.setOnClickListener {
             val datePicker = MaterialDatePicker.Builder.datePicker()
                 .setTitleText(R.string.select_date)
-                .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                .setSelection(selectedDate)
                 .build()
 
             datePicker.addOnPositiveButtonClickListener {
@@ -101,7 +177,7 @@ class MainActivity : AppCompatActivity() {
             datePicker.show(supportFragmentManager, "DATE_PICKER")
         }
 
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(R.string.add_transaction)
             .setView(dialogBinding.root)
             .setPositiveButton(R.string.save) { _, _ ->
@@ -120,17 +196,17 @@ class MainActivity : AppCompatActivity() {
                         )
                         viewModel.insert(transaction)
                     } catch (e: NumberFormatException) {
-                        Toast.makeText(this, "Nederīgs summas formāts", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, R.string.invalid_amount, Toast.LENGTH_SHORT).show()
                     }
                 } else {
-                    Toast.makeText(this, "Ievadiet summu", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, R.string.enter_amount, Toast.LENGTH_SHORT).show()
                 }
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
     }
 
-    private fun showDatePicker() {
+    private fun showDateRangePicker() {
         val dateRangePicker = MaterialDatePicker.Builder.dateRangePicker()
             .setTitleText(R.string.select_date)
             .build()
@@ -140,7 +216,8 @@ class MainActivity : AppCompatActivity() {
                 viewModel.setDateFilter(selection.first!!, selection.second!!)
                 val start = dateFormat.format(Date(selection.first!!))
                 val end = dateFormat.format(Date(selection.second!!))
-                binding.btnFilterDate.text = "$start - $end (Dzēst ar garu nospiedienu)"
+                binding.tvFilterLabel.text = "$start – $end"
+                binding.tvFilterLabel.visibility = View.VISIBLE
             }
         }
 

@@ -8,6 +8,9 @@ interface TransactionDao {
     @Query("SELECT * FROM transactions ORDER BY date DESC")
     fun getAllTransactions(): LiveData<List<Transaction>>
 
+    @Query("SELECT * FROM transactions ORDER BY date DESC")
+    fun getAllTransactionsSync(): List<Transaction>
+
     @Query("SELECT * FROM transactions WHERE date >= :startDate AND date <= :endDate ORDER BY date DESC")
     fun getTransactionsBetweenDates(startDate: Long, endDate: Long): LiveData<List<Transaction>>
 

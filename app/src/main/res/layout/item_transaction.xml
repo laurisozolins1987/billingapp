@@ -5,28 +5,39 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
-    android:layout_marginVertical="8dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="2dp">
+    android:layout_marginVertical="4dp"
+    app:cardBackgroundColor="?attr/colorSurface"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="1dp"
+    app:strokeWidth="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="16dp">
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="14dp">
 
-        <ImageView
-            android:id="@+id/iv_transaction_type"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_gravity="center_vertical"
-            android:padding="8dp"
-            tools:src="@android:drawable/btn_plus" />
+        <!-- Icon circle -->
+        <FrameLayout
+            android:id="@+id/icon_container"
+            android:layout_width="44dp"
+            android:layout_height="44dp">
 
+            <ImageView
+                android:id="@+id/iv_transaction_type"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:padding="10dp"
+                tools:src="@drawable/ic_income" />
+        </FrameLayout>
+
+        <!-- Text info -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
+            android:layout_marginStart="14dp"
             android:layout_weight="1"
             android:orientation="vertical">
 
@@ -34,29 +45,32 @@
                 android:id="@+id/tv_note"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@android:color/black"
-                android:textSize="16sp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="15sp"
                 android:textStyle="bold"
-                tools:text="Coffee" />
+                tools:text="Alga" />
 
             <TextView
                 android:id="@+id/tv_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@android:color/darker_gray"
-                android:textSize="14sp"
-                tools:text="2023-10-27" />
+                android:layout_marginTop="2dp"
+                android:textColor="@color/text_hint"
+                android:textSize="13sp"
+                tools:text="14. apr. 2026" />
         </LinearLayout>
 
+        <!-- Amount -->
         <TextView
             android:id="@+id/tv_amount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:textSize="18sp"
+            android:layout_marginStart="8dp"
+            android:textSize="16sp"
             android:textStyle="bold"
-            tools:text="+ 5.00 €" />
-
+            tools:text="+1,500.00 €" />
     </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>
