@@ -11,7 +11,8 @@ data class CalendarDay(
     val day: Int,           // 0 = empty cell
     val isToday: Boolean = false,
     val isSelected: Boolean = false,
-    val transactionCount: Int = 0
+    val transactionCount: Int = 0,
+    val billCount: Int = 0
 )
 
 class CalendarDayAdapter(
@@ -67,9 +68,16 @@ class CalendarDayAdapter(
             }
 
             // Transaction count badge
-            if (day.transactionCount > 0 && !day.isSelected) {
+            val totalCount = day.transactionCount + day.billCount
+            if (totalCount > 0 && !day.isSelected) {
                 binding.tvBadge.visibility = View.VISIBLE
-                binding.tvBadge.text = if (day.transactionCount > 9) "9+" else day.transactionCount.toString()
+                binding.tvBadge.text = if (totalCount > 9) "9+" else totalCount.toString()
+                // Use different badge color if there are bills
+                if (day.billCount > 0 && day.transactionCount == 0) {
+                    binding.tvBadge.setBackgroundResource(R.drawable.bg_bill_badge_calendar)
+                } else {
+                    binding.tvBadge.setBackgroundResource(R.drawable.bg_badge)
+                }
             } else {
                 binding.tvBadge.visibility = View.GONE
             }

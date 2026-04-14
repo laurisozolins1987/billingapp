@@ -29,6 +29,10 @@
     <color name="divider">#E0E0E0</color>
     <color name="text_hint">#9E9E9E</color>
 
+    <!-- Bills -->
+    <color name="bill_blue">#1565C0</color>
+    <color name="bill_overdue">#E65100</color>
+
     <!-- Header gradient -->
     <color name="gradient_start">#1B5E20</color>
     <color name="gradient_end">#2E7D32</color>

@@ -12,6 +12,9 @@ class TransactionViewModel(application: Application) : AndroidViewModel(applicat
     val deletedTransactions: LiveData<List<Transaction>>
     val bookmarkedTransactions: LiveData<List<Transaction>>
     val archivedTransactions: LiveData<List<Transaction>>
+    val allBills: LiveData<List<Bill>>
+    val unpaidBills: LiveData<List<Bill>>
+    val paidBills: LiveData<List<Bill>>
 
     // Filter states
     private val _dateFilter = MutableLiveData<Pair<Long, Long>?>(null)
@@ -42,13 +45,16 @@ class TransactionViewModel(application: Application) : AndroidViewModel(applicat
 
     init {
         val db = AppDatabase.getDatabase(application)
-        repository = TransactionRepository(db.transactionDao(), db.categoryDao(), db.folderDao())
+        repository = TransactionRepository(db.transactionDao(), db.categoryDao(), db.folderDao(), db.billDao())
         allTransactions = repository.allTransactions
         allCategories = repository.allCategories
         allFolders = repository.allFolders
         deletedTransactions = repository.deletedTransactions
         bookmarkedTransactions = repository.bookmarkedTransactions
         archivedTransactions = repository.archivedTransactions
+        allBills = repository.allBills
+        unpaidBills = repository.unpaidBills
+        paidBills = repository.paidBills
 
         filteredTransactions = MediatorLiveData<List<Transaction>>().apply {
             addSource(allTransactions) { applyFilters(this, it, _filterState.value) }
@@ -177,4 +183,30 @@ class TransactionViewModel(application: Application) : AndroidViewModel(applicat
     fun deleteFolder(folder: Folder) = viewModelScope.launch {
         repository.deleteFolder(folder)
     }
+
+    // Bill methods
+    fun insertBill(bill: Bill) = viewModelScope.launch {
+        repository.insertBill(bill)
+    }
+
+    fun updateBill(bill: Bill) = viewModelScope.launch {
+        repository.updateBill(bill)
+    }
+
+    fun deleteBill(bill: Bill) = viewModelScope.launch {
+        repository.deleteBill(bill)
+    }
+
+    fun markBillAsPaid(id: Int, paidAt: Long = System.currentTimeMillis(), location: String = "") = viewModelScope.launch {
+        repository.markBillAsPaid(id, paidAt, location)
+    }
+
+    fun markBillAsUnpaid(id: Int) = viewModelScope.launch {
+        repository.markBillAsUnpaid(id)
+    }
+
+    fun getBillById(id: Int): LiveData<Bill?> = repository.getBillById(id)
+    fun getUnpaidBillCount(): LiveData<Int> = repository.getUnpaidBillCount()
+    fun getOverdueCount(): LiveData<Int> = repository.getOverdueCount()
+    fun getBillsDueOnDate(startOfDay: Long, endOfDay: Long): LiveData<List<Bill>> = repository.getBillsDueOnDate(startOfDay, endOfDay)
 }

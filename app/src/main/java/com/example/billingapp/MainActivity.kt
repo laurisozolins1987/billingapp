@@ -184,6 +184,9 @@ class MainActivity : AppCompatActivity() {
         binding.btnSettings.setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
+        binding.btnBills.setOnClickListener {
+            startActivity(Intent(this, BillsActivity::class.java))
+        }
 
         // Long press on calendar to clear date filter
         binding.btnCalendar.setOnLongClickListener {

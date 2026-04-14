@@ -5,7 +5,8 @@ import androidx.lifecycle.LiveData
 class TransactionRepository(
     private val transactionDao: TransactionDao,
     private val categoryDao: CategoryDao,
-    private val folderDao: FolderDao
+    private val folderDao: FolderDao,
+    private val billDao: BillDao
 ) {
     val allTransactions: LiveData<List<Transaction>> = transactionDao.getAllTransactions()
     val allCategories: LiveData<List<Category>> = categoryDao.getAllCategories()
@@ -89,4 +90,21 @@ class TransactionRepository(
     suspend fun deleteFolder(folder: Folder) {
         folderDao.delete(folder)
     }
+
+    // Bill operations
+    val allBills: LiveData<List<Bill>> = billDao.getAllBills()
+    val unpaidBills: LiveData<List<Bill>> = billDao.getUnpaidBills()
+    val paidBills: LiveData<List<Bill>> = billDao.getPaidBills()
+
+    fun getBillById(id: Int): LiveData<Bill?> = billDao.getBillById(id)
+    fun getUnpaidBillCount(): LiveData<Int> = billDao.getUnpaidCount()
+    fun getOverdueCount(): LiveData<Int> = billDao.getOverdueCount()
+    fun getBillsDueOnDate(startOfDay: Long, endOfDay: Long): LiveData<List<Bill>> = billDao.getBillsDueOnDate(startOfDay, endOfDay)
+
+    suspend fun insertBill(bill: Bill): Long = billDao.insert(bill)
+    suspend fun updateBill(bill: Bill) = billDao.update(bill)
+    suspend fun deleteBill(bill: Bill) = billDao.delete(bill)
+    suspend fun markBillAsPaid(id: Int, paidAt: Long, location: String) = billDao.markAsPaid(id, paidAt, location)
+    suspend fun markBillAsUnpaid(id: Int) = billDao.markAsUnpaid(id)
+    fun getBillsWithReminders(): List<Bill> = billDao.getBillsWithReminders()
 }

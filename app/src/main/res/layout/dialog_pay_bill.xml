@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingHorizontal="24dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="16dp">
+
+    <!-- Date and Time row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_pick_date"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:text="@string/date"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="13sp"
+            app:cornerRadius="12dp"
+            app:icon="@drawable/ic_calendar"
+            app:iconTint="?attr/colorPrimary" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_pick_time"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:text="@string/time"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="13sp"
+            app:cornerRadius="12dp"
+            app:icon="@drawable/ic_time"
+            app:iconTint="?attr/colorPrimary" />
+    </LinearLayout>
+
+    <!-- Location -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:hint="@string/bill_paid_location"
+        app:boxCornerRadiusBottomEnd="12dp"
+        app:boxCornerRadiusBottomStart="12dp"
+        app:boxCornerRadiusTopEnd="12dp"
+        app:boxCornerRadiusTopStart="12dp"
+        app:startIconDrawable="@drawable/ic_location"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textCapSentences" />
+    </com.google.android.material.textfield.TextInputLayout>
+</LinearLayout>

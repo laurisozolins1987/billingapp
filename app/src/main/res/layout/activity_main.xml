@@ -35,6 +35,15 @@
                 android:textStyle="bold" />
 
             <ImageButton
+                android:id="@+id/btn_bills"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/bills"
+                android:src="@drawable/ic_bill"
+                app:tint="@android:color/white" />
+
+            <ImageButton
                 android:id="@+id/btn_calendar"
                 android:layout_width="40dp"
                 android:layout_height="40dp"

@@ -81,6 +81,9 @@ class SettingsActivity : AppCompatActivity() {
         viewModel.allFolders.observe(this) { folders ->
             binding.tvFoldersCount.text = getString(R.string.folders_count, folders.size)
         }
+        viewModel.getUnpaidBillCount().observe(this) { count ->
+            binding.tvBillsCount.text = getString(R.string.bills_count_unpaid, count)
+        }
     }
 
     private fun loadSettings() {
@@ -142,6 +145,10 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.layoutFolders.setOnClickListener {
             startActivity(Intent(this, FoldersActivity::class.java))
+        }
+
+        binding.layoutBills.setOnClickListener {
+            startActivity(Intent(this, BillsActivity::class.java))
         }
     }
 

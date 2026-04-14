@@ -22,6 +22,7 @@ class CalendarActivity : AppCompatActivity() {
     private val displayCalendar = Calendar.getInstance()
     private var selectedDay: Int = -1
     private var allTransactions: List<Transaction> = emptyList()
+    private var allBills: List<Bill> = emptyList()
 
     private val monthYearFormat = SimpleDateFormat("yyyy. 'gada' MMMM", Locale("lv"))
     private val dayMonthFormat = SimpleDateFormat("d. MMMM", Locale("lv"))
@@ -104,6 +105,14 @@ class CalendarActivity : AppCompatActivity() {
                 }
             }
         }
+
+        viewModel.allBills.observe(this) { bills ->
+            allBills = bills
+            refreshCalendar()
+            if (selectedDay > 0) {
+                showDayTransactions(selectedDay)
+            }
+        }
     }
 
     private fun refreshCalendar() {
@@ -115,6 +124,7 @@ class CalendarActivity : AppCompatActivity() {
 
         // Count transactions per day for this month
         val transactionCountsByDay = getTransactionCountsByDay(year, month)
+        val billCountsByDay = getBillCountsByDay(year, month)
 
         // Determine today
         val todayCal = Calendar.getInstance()
@@ -160,7 +170,8 @@ class CalendarActivity : AppCompatActivity() {
                     day = d,
                     isToday = d == todayDay,
                     isSelected = d == selectedDay,
-                    transactionCount = transactionCountsByDay[d] ?: 0
+                    transactionCount = transactionCountsByDay[d] ?: 0,
+                    billCount = billCountsByDay[d] ?: 0
                 )
             )
         }
@@ -179,6 +190,21 @@ class CalendarActivity : AppCompatActivity() {
 
         for (transaction in allTransactions) {
             cal.timeInMillis = transaction.date
+            if (cal.get(Calendar.YEAR) == year && cal.get(Calendar.MONTH) == month) {
+                val day = cal.get(Calendar.DAY_OF_MONTH)
+                counts[day] = (counts[day] ?: 0) + 1
+            }
+        }
+
+        return counts
+    }
+
+    private fun getBillCountsByDay(year: Int, month: Int): Map<Int, Int> {
+        val cal = Calendar.getInstance()
+        val counts = mutableMapOf<Int, Int>()
+
+        for (bill in allBills) {
+            cal.timeInMillis = bill.dueDate
             if (cal.get(Calendar.YEAR) == year && cal.get(Calendar.MONTH) == month) {
                 val day = cal.get(Calendar.DAY_OF_MONTH)
                 counts[day] = (counts[day] ?: 0) + 1
@@ -209,9 +235,18 @@ class CalendarActivity : AppCompatActivity() {
                     cal.get(Calendar.DAY_OF_MONTH) == day
         }.sortedByDescending { it.date }
 
-        binding.tvDayTransactionCount.text = getString(R.string.transaction_count, dayTransactions.size)
+        // Filter bills due on this day
+        val dayBills = allBills.filter { bill ->
+            cal.timeInMillis = bill.dueDate
+            cal.get(Calendar.YEAR) == year &&
+                    cal.get(Calendar.MONTH) == month &&
+                    cal.get(Calendar.DAY_OF_MONTH) == day
+        }
 
-        if (dayTransactions.isEmpty()) {
+        val totalItems = dayTransactions.size + dayBills.size
+        binding.tvDayTransactionCount.text = getString(R.string.transaction_count, totalItems)
+
+        if (totalItems == 0) {
             binding.cardDaySummary.visibility = View.GONE
             binding.rvDayTransactions.visibility = View.GONE
             binding.tvDayEmpty.visibility = View.VISIBLE
@@ -220,13 +255,14 @@ class CalendarActivity : AppCompatActivity() {
             binding.cardDaySummary.visibility = View.VISIBLE
             binding.rvDayTransactions.visibility = View.VISIBLE
 
-            // Calculate day summary
+            // Calculate day summary (transactions only)
             val currencySymbol = SettingsActivity.getCurrencySymbol(this)
             val income = dayTransactions.filter { it.isIncome }.sumOf { it.amount }
             val expense = dayTransactions.filter { !it.isIncome }.sumOf { it.amount }
+            val billsTotal = dayBills.filter { !it.isPaid }.sumOf { it.amount }
 
             binding.tvDayIncome.text = String.format("+%,.2f %s", income, currencySymbol)
-            binding.tvDayExpense.text = String.format("-%,.2f %s", expense, currencySymbol)
+            binding.tvDayExpense.text = String.format("-%,.2f %s", expense + billsTotal, currencySymbol)
 
             transactionAdapter.submitList(dayTransactions)
         }

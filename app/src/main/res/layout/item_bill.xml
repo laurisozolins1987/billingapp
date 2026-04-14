@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="4dp"
+    app:cardBackgroundColor="?attr/colorSurface"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="1dp"
+    app:strokeWidth="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="14dp">
+
+        <!-- Icon circle -->
+        <FrameLayout
+            android:id="@+id/icon_container"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_bill_badge">
+
+            <ImageView
+                android:id="@+id/iv_bill_status"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:padding="10dp"
+                android:src="@drawable/ic_bill"
+                app:tint="@color/bill_blue" />
+        </FrameLayout>
+
+        <!-- Text info -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_bill_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                tools:text="Elektrība" />
+
+            <TextView
+                android:id="@+id/tv_bill_category"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="11sp"
+                android:visibility="gone"
+                tools:text="Komunālie" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tv_bill_due_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text_hint"
+                    android:textSize="12sp"
+                    tools:text="Termiņš: 15. jūn. 2026" />
+
+                <ImageView
+                    android:id="@+id/iv_recurring"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_marginStart="6dp"
+                    android:src="@drawable/ic_recurring"
+                    android:visibility="gone"
+                    app:tint="@color/bill_blue"
+                    tools:visibility="visible" />
+
+                <ImageView
+                    android:id="@+id/iv_reminder"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_marginStart="4dp"
+                    android:src="@drawable/ic_notification"
+                    android:visibility="gone"
+                    app:tint="@color/bill_blue"
+                    tools:visibility="visible" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Amount + status -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:gravity="end"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_bill_amount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:text="85.50 €" />
+
+            <TextView
+                android:id="@+id/tv_bill_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                tools:text="Kavējas" />
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

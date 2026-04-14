@@ -7,11 +7,12 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-@Database(entities = [Transaction::class, Category::class, Folder::class], version = 5, exportSchema = false)
+@Database(entities = [Transaction::class, Category::class, Folder::class, Bill::class], version = 6, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun transactionDao(): TransactionDao
     abstract fun categoryDao(): CategoryDao
     abstract fun folderDao(): FolderDao
+    abstract fun billDao(): BillDao
 
     companion object {
         @Volatile
@@ -53,13 +54,35 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("""CREATE TABLE IF NOT EXISTS bills (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    title TEXT NOT NULL,
+                    amount REAL NOT NULL,
+                    dueDate INTEGER NOT NULL,
+                    category TEXT NOT NULL DEFAULT '',
+                    description TEXT NOT NULL DEFAULT '',
+                    isPaid INTEGER NOT NULL DEFAULT 0,
+                    paidAt INTEGER NOT NULL DEFAULT 0,
+                    paidLocation TEXT NOT NULL DEFAULT '',
+                    isRecurring INTEGER NOT NULL DEFAULT 0,
+                    recurringInterval TEXT NOT NULL DEFAULT '',
+                    reminderEnabled INTEGER NOT NULL DEFAULT 0,
+                    reminderDaysBefore INTEGER NOT NULL DEFAULT 1,
+                    createdAt INTEGER NOT NULL,
+                    imagePath TEXT NOT NULL DEFAULT ''
+                )""")
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
                     "billing_database"
-                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5).build()
+                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6).build()
                 INSTANCE = instance
                 instance
             }
