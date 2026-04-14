@@ -76,4 +76,17 @@
     <string name="currency_eur">EUR (€)</string>
     <string name="currency_usd">USD ($)</string>
     <string name="currency_gbp">GBP (£)</string>
+
+    <!-- Calendar -->
+    <string name="calendar">Kalendārs</string>
+    <string name="prev_month">Iepriekšējais mēnesis</string>
+    <string name="next_month">Nākamais mēnesis</string>
+    <string name="no_transactions_day">Šajā dienā nav darījumu</string>
+    <string name="weekday_mon">Pr</string>
+    <string name="weekday_tue">Ot</string>
+    <string name="weekday_wed">Tr</string>
+    <string name="weekday_thu">Ce</string>
+    <string name="weekday_fri">Pk</string>
+    <string name="weekday_sat">Se</string>
+    <string name="weekday_sun">Sv</string>
 </resources>

@@ -13,6 +13,10 @@
         android:theme="@style/Theme.Billingapp">
 
         <activity
+            android:name=".CalendarActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".TransactionDetailActivity"
             android:exported="false" />
 

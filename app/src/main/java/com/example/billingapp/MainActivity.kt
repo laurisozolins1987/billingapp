@@ -138,7 +138,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupListeners() {
         binding.fabAdd.setOnClickListener { showAddTransactionDialog() }
-        binding.btnCalendar.setOnClickListener { showDateRangePicker() }
+        binding.btnCalendar.setOnClickListener {
+            startActivity(Intent(this, CalendarActivity::class.java))
+        }
         binding.btnSettings.setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
@@ -302,21 +304,4 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
-    private fun showDateRangePicker() {
-        val dateRangePicker = MaterialDatePicker.Builder.dateRangePicker()
-            .setTitleText(R.string.select_date)
-            .build()
-
-        dateRangePicker.addOnPositiveButtonClickListener { selection ->
-            if (selection.first != null && selection.second != null) {
-                viewModel.setDateFilter(selection.first!!, selection.second!!)
-                val start = dateFormat.format(Date(selection.first!!))
-                val end = dateFormat.format(Date(selection.second!!))
-                binding.tvFilterLabel.text = "$start – $end"
-                binding.tvFilterLabel.visibility = View.VISIBLE
-            }
-        }
-
-        dateRangePicker.show(supportFragmentManager, "RANGE_PICKER")
-    }
 }
